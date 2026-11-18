@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Khối Kiến Thức 3D: Bảo Hiểm Tử Kỳ PRUYên Tâm Vui Khỏe</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --bg-mint: #eaf6ee;
+      --grid-line: #dceee2;
+      --forest-btn: #153226;
+      --forest-btn-hover: #1f4736;
+      --pru-red: #ed1b2e;
+      --emerald-done: #10b981;
+      --cube-size: 235px;
+      --cube-half: 117.5px;
+    }
+
+    @media (min-width: 1024px) {
+      :root {
+        --cube-size: 265px;
+        --cube-half: 132.5px;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-mint);
+      background-image:
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: #14261c;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================= 3D CUBE ARCHITECTURE ================= */
+    .scene-wrapper {
+      perspective: 1100px;
+      width: var(--cube-size);
+      height: var(--cube-size);
+      margin: 0 auto;
+      position: relative;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .scene-wrapper:active {
+      cursor: grabbing;
+    }
+
+    .cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-14deg) rotateY(0deg);
+      will-change: transform;
+    }
+
+    .cube.smooth-rotate {
+      transition: transform 0.65s cubic-bezier(0.2, 0.85, 0.25, 1);
+    }
+
+    .cube-face {
+      position: absolute;
+      width: var(--cube-size);
+      height: var(--cube-size);
+      background: linear-gradient(155deg, rgba(255, 255, 255, 0.97), rgba(242, 250, 245, 0.95));
+      border: 2.5px solid #ffffff;
+      border-radius: 26px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow:
+        0 14px 30px rgba(21, 50, 38, 0.1),
+        inset 0 0 0 1.5px rgba(21, 50, 38, 0.08);
+      backface-visibility: visible;
+      user-select: none;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .cube-face.active-face {
+      border-color: #153226;
+      box-shadow:
+        0 18px 38px rgba(21, 50, 38, 0.18),
+        inset 0 0 0 2px rgba(21, 50, 38, 0.14);
+    }
+
+    .cube-face.mastered {
+      border-color: #10b981;
+      background: linear-gradient(155deg, #ffffff, #ecfdf5);
+    }
+
+    /* 6 Cube Face Transforms */
+    .face-0 { transform: rotateY(0deg) translateZ(var(--cube-half)); }
+    .face-1 { transform: rotateY(90deg) translateZ(var(--cube-half)); }
+    .face-2 { transform: rotateY(180deg) translateZ(var(--cube-half)); }
+    .face-3 { transform: rotateY(-90deg) translateZ(var(--cube-half)); }
+    .face-4 { transform: rotateX(90deg) translateZ(var(--cube-half)); }
+    .face-5 { transform: rotateX(-90deg) translateZ(var(--cube-half)); }
+
+    .cube-shadow {
+      width: 190px;
+      height: 28px;
+      background: radial-gradient(ellipse at center, rgba(21, 50, 38, 0.2) 0%, rgba(21, 50, 38, 0) 72%);
+      margin: 22px auto 0;
+      border-radius: 50%;
+      filter: blur(5px);
+    }
+
+    /* ================= LAYERED 3D CARD STACK (RECENTER INSPIRED) ================= */
+    .card-stack-stage {
+      position: relative;
+      width: 100%;
+      max-width: 560px;
+      min-height: 530px;
+      margin: 0 auto;
+      padding-right: 34px; /* Space for peeking cards on desktop */
+    }
+
+    @media (min-width: 640px) {
+      .card-stack-stage {
+        padding-right: 68px;
+        min-height: 550px;
+      }
+    }
+
+    .stacked-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(100% - 34px);
+      min-height: 515px;
+      background: #ffffff;
+      border-radius: 30px;
+      padding: 14px;
+      box-shadow:
+        0 20px 45px -12px rgba(21, 50, 38, 0.14),
+        0 4px 14px rgba(21, 50, 38, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      transition:
+        transform 0.52s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.45s ease,
+        box-shadow 0.45s ease;
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+
+    @media (min-width: 640px) {
+      .stacked-card {
+        width: calc(100% - 68px);
+        min-height: 535px;
+        padding: 16px;
+      }
+    }
+
+    /* Position 0: Front Active Card */
+    .stacked-card[data-pos="0"] {
+      z-index: 30;
+      transform: translateX(0px) translateY(0px) scale(1);
+      opacity: 1;
+      cursor: default;
+    }
+
+    /* Position 1: Second Card Peeking Right */
+    .stacked-card[data-pos="1"] {
+      z-index: 20;
+      transform: translateX(22px) translateY(14px) scale(0.955);
+      opacity: 0.96;
+      cursor: pointer;
+    }
+    .stacked-card[data-pos="1"]:hover {
+      transform: translateX(28px) translateY(12px) scale(0.965);
+    }
+
+    /* Position 2: Third Card Peeking Further Right */
+    .stacked-card[data-pos="2"] {
+      z-index: 10;
+      transform: translateX(42px) translateY(28px) scale(0.91);
+      opacity: 0.9;
+      cursor: pointer;
+    }
+    .stacked-card[data-pos="2"]:hover {
+      transform: translateX(48px) translateY(26px) scale(0.92);
+    }
+
+    @media (min-width: 640px) {
+      .stacked-card[data-pos="1"] {
+        transform: translateX(38px) translateY(16px) scale(0.955);
+      }
+      .stacked-card[data-pos="1"]:hover {
+        transform: translateX(46px) translateY(14px) scale(0.965);
+      }
+      .stacked-card[data-pos="2"] {
+        transform: translateX(72px) translateY(32px) scale(0.91);
+      }
+      .stacked-card[data-pos="2"]:hover {
+        transform: translateX(80px) translateY(30px) scale(0.92);
+      }
+    }
+
+    /* Pastel Inner Canvas inside each White Card Frame */
+    .card-pastel-mint {
+      background: linear-gradient(150deg, #e3f7e8 0%, #c9efd5 55%, #daf5e3 100%);
+    }
+    .card-pastel-amber {
+      background: linear-gradient(150deg, #fef7df 0%, #fceac0 55%, #fdf3d7 100%);
+    }
+    .card-pastel-lavender {
+      background: linear-gradient(150deg, #eceeff 0%, #dce2ff 55%, #e8ecff 100%);
+    }
+
+    /* Floating Mini Pills inside Pastel Area (Like 'Think Clearer' / 'Better Habits') */
+    .floating-tag {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 6px 16px rgba(21, 50, 38, 0.07);
+      border-radius: 14px;
+      padding: 6px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #153226;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Custom Scrollbar inside Card Content */
+    .card-scroll::-webkit-scrollbar {
+      width: 5px;
+    }
+    .card-scroll::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+    }
+    .card-scroll::-webkit-scrollbar-thumb {
+      background: rgba(21, 50, 38, 0.22);
+      border-radius: 999px;
+    }
+    .card-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(21, 50, 38, 0.4);
+    }
+
+    /* Forest Green Pill CTA ('Get started' style) */
+    .btn-forest {
+      background-color: var(--forest-btn);
+      color: #ffffff;
+      border-radius: 9999px;
+      padding: 10px 18px;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s ease, transform 0.15s ease;
+      box-shadow: 0 6px 16px rgba(21, 50, 38, 0.22);
+      cursor: pointer;
+    }
+    .btn-forest:hover {
+      background-color: var(--forest-btn-hover);
+      transform: translateY(-1px);
+    }
+    .btn-forest:active {
+      transform: translateY(0px);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-[#153226] selection:text-white">
+
+  <!-- TOP COMPACT HEADER -->
+  <header class="w-full bg-white/80 backdrop-blur-md border-b border-[#dceee2] sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-[#ed1b2e] flex items-center justify-center text-white shadow-md shadow-red-600/20 shrink-0">
+          <i class="fa-solid fa-shield-heart text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-[#ed1b2e] bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+              Prudential Việt Nam
+            </span>
+            <span class="hidden md:inline-block text-[11px] text-slate-500 font-medium">
+              CV 822/QLBH-NT • 23/04/2026
+            </span>
+          </div>
+          <h1 class="text-base sm:text-lg font-extrabold text-[#153226] tracking-tight leading-tight mt-0.5">
+            PRUYên Tâm Vui Khỏe <span class="font-medium text-slate-500 text-xs sm:text-sm">— Khối Kiến Thức 3D</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Progress Pill & Reset -->
+      <div class="flex items-center gap-2.5 ml-auto sm:ml-0">
+        <div class="bg-[#f2faf5] border border-[#cde6d6] rounded-full px-3.5 py-1.5 flex items-center gap-3 shadow-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-xs font-semibold text-[#153226]">Tiến độ:</span>
+          <span id="progress-text" class="text-xs font-extrabold text-[#153226]">0/6 mặt</span>
+          <div class="w-16 sm:w-24 h-2 bg-white rounded-full overflow-hidden border border-[#d6ecde]">
+            <div id="progress-bar" class="h-full bg-emerald-500 transition-all duration-500" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <button id="btn-reset" type="button" title="Đặt lại tiến độ học"
+          class="w-9 h-9 rounded-full bg-white hover:bg-slate-50 text-slate-600 hover:text-[#153226] border border-[#cde6d6] flex items-center justify-center transition cursor-pointer shadow-xs">
+          <i class="fa-solid fa-rotate-left text-xs"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- COMPLETION BANNER (Appears when 6/6 mastered) -->
+  <div id="celebration-banner" class="hidden max-w-7xl mx-auto w-full px-4 sm:px-6 pt-4">
+    <div class="bg-white border-2 border-emerald-400 rounded-3xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg shadow-emerald-900/5">
+      <div class="flex items-center gap-3 text-center sm:text-left">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0">
+          <i class="fa-solid fa-award"></i>
+        </div>
+        <div>
+          <h2 class="text-sm sm:text-base font-extrabold text-[#153226]">Chúc mừng! Bạn đã chinh phục trọn vẹn 6/6 mặt kiến thức PRUYên Tâm Vui Khỏe</h2>
+          <p class="text-xs text-slate-600">Toàn bộ các quy tắc, điều khoản, quyền lợi chi trả và tình huống kiểm tra đã được hoàn thành xuất sắc.</p>
+        </div>
+      </div>
+      <span class="px-3.5 py-1.5 rounded-full bg-[#153226] text-white font-bold text-xs shrink-0">
+        <i class="fa-solid fa-circle-check text-emerald-400 mr-1.5"></i> Hoàn thành 100%
+      </span>
+    </div>
+  </div>
+
+  <!-- MAIN SPLIT-SCREEN WORKSPACE (45% Left 3D Cube / 55% Right Layered Card Stack) -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 lg:py-8 flex flex-col lg:flex-row items-center lg:items-stretch gap-8 lg:gap-6">
+    
+    <!-- LEFT COLUMN (45% on Desktop): ALWAYS-VISIBLE 3D KNOWLEDGE CUBE -->
+    <section class="w-full lg:w-[45%] flex flex-col items-center justify-between bg-white/55 backdrop-blur-md border border-white rounded-[32px] p-5 sm:p-6 shadow-xl shadow-emerald-950/5">
+      
+      <!-- Top Status Pill -->
+      <div class="w-full flex items-center justify-between gap-2 mb-2">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white text-[#153226] text-xs font-bold shadow-xs border border-[#dceee2]">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Khối Lập Phương 3D
+        </span>
+        <span class="text-[11px] font-medium text-slate-500">
+          <i class="fa-solid fa-arrows-rotate mr-1 text-[#153226]"></i> Kéo xoay 360° hoặc chạm mặt
+        </span>
+      </div>
+
+      <!-- 3D Cube Stage -->
+      <div class="my-auto py-6 sm:py-8 flex flex-col items-center justify-center w-full">
+        <div class="scene-wrapper" id="scene">
+          <div class="cube" id="cube">
+            <!-- 6 Faces injected via JS -->
+          </div>
+        </div>
+        <div class="cube-shadow"></div>
+      </div>
+
+      <!-- 6-Face Quick Rotation Navigation Grid -->
+      <div class="w-full mt-2">
+        <div class="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2.5 px-1">
+          <span>Chọn nhanh mặt kiến thức</span>
+          <span id="active-face-indicator" class="text-[#153226] font-extrabold">Mặt 1/6</span>
+        </div>
+        <div id="nav-pills" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- 6 Navigation Pills injected via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN (55% on Desktop): LAYERED 3D CARD STACK (RECENTER STYLE) -->
+    <section class="w-full lg:w-[55%] flex flex-col justify-center">
+      <!-- Card Stack Wrapper -->
+      <div class="card-stack-stage" id="card-stack-stage">
+        <!-- 3 Layered Cards (Card 0: Tóm tắt, Card 1: Chi tiết, Card 2: Quiz) injected via JS -->
+      </div>
+
+      <!-- Bottom Card Step Indicator & Quick Switcher -->
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3 max-w-[560px] w-full mx-auto px-2">
+        <div class="flex items-center gap-2" id="stack-dots">
+          <button type="button" onclick="bringCardToFront(0)" class="stack-dot px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-[#153226] text-white">
+            1. Cốt lõi
+          </button>
+          <button type="button" onclick="bringCardToFront(1)" class="stack-dot px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-white text-slate-600 border border-[#dceee2] hover:border-[#153226]">
+            2. Chi tiết điều khoản
+          </button>
+          <button type="button" onclick="bringCardToFront(2)" class="stack-dot px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-white text-slate-600 border border-[#dceee2] hover:border-[#153226]">
+            3. Mini-Quiz
+          </button>
+        </div>
+
+        <button type="button" onclick="cycleNextCard()" class="text-xs font-bold text-[#153226] hover:underline flex items-center gap-1.5 cursor-pointer px-2 py-1">
+          <span>Lật thẻ tiếp theo</span>
+          <i class="fa-solid fa-layer-group"></i>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CUSTOM RESET CONFIRMATION MODAL (No native confirm/alert) -->
+  <div id="reset-modal" class="fixed inset-0 bg-[#153226]/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+    <div class="bg-white border border-[#dceee2] rounded-3xl max-w-sm w-full p-6 shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-red-50 text-[#ed1b2e] flex items-center justify-center text-xl mb-3">
+        <i class="fa-solid fa-rotate-left"></i>
+      </div>
+      <h3 class="text-base font-extrabold text-[#153226] mb-1">Đặt lại tiến độ học tập?</h3>
+      <p class="text-xs sm:text-sm text-slate-600 mb-5 leading-relaxed">
+        Toàn bộ huy hiệu hoàn thành trên 6 mặt của khối lập phương sẽ được xóa để bạn thực hành lại từ đầu.
+      </p>
+      <div class="flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeResetModal()" class="px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer">
+          Hủy bỏ
+        </button>
+        <button type="button" onclick="confirmResetProgress()" class="px-4 py-2 rounded-full bg-[#ed1b2e] hover:bg-red-700 text-white text-xs font-bold transition cursor-pointer">
+          Đồng ý đặt lại
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * DỮ LIỆU 6 MẶT KIẾN THỨC - SẢN PHẨM BẢO HIỂM TỬ KỲ PRUYÊN TÂM VUI KHỎE
+     * Căn cứ Quy tắc & Điều khoản (Công văn số 822/QLBH-NT ngày 23/4/2026)
+     */
+    const CUBE_MODULES = [
+      {
+        id: 0,
+        shortTitle: "1. Tổng Quan",
+        title: "Tổng Quan & Đối Tượng",
+        subtitle: "Điều kiện tham gia & Thời hạn bảo vệ cốt lõi",
+        citation: "Định nghĩa 12, 22, 23 & Điều 13.1, 13.3.3, 17, 18",
+        icon: "fa-users-viewfinder",
+        rotation: { x: -12, y: 0 },
+        normal: { x: 0, y: 0, z: 1 },
+        cubeSummary: "Tuổi tham gia 30 ngày – 70 tuổi; Bảo vệ tối đa đến 80 tuổi; Thời hạn 5 – 40 năm.",
+        cubeTags: ["30 ngày – 70 tuổi", "Tối đa 80 tuổi"],
+        floatingTags: [
+          { icon: "fa-baby", text: "Từ 30 ngày tuổi" },
+          { icon: "fa-calendar-check", text: "Cân nhắc 21 ngày" }
+        ],
+        card1Points: [
+          {
+            label: "Độ tuổi tham gia bảo hiểm (ĐN 12 & 23)",
+            text: "Từ <strong>30 ngày tuổi đến 70 tuổi</strong> tại thời điểm tham gia (tính theo Tuổi Bảo Hiểm — ngày sinh nhật gần nhất trước Ngày Hiệu Lực HĐ)."
+          },
+          {
+            label: "Tuổi tối đa kết thúc & Thời hạn bảo hiểm (Điều 17)",
+            text: "Thời hạn bảo hiểm từ <strong>5 năm đến 40 năm</strong>, nhưng không vượt quá Ngày Kỷ Niệm Hợp Đồng ngay sau sinh nhật lần thứ <strong>80 tuổi</strong> của NĐBH."
+          },
+          {
+            label: "Thời hạn cân nhắc 21 ngày (ĐN 22 & Điều 13.1)",
+            text: "Bên Mua Bảo Hiểm có <strong>21 ngày</strong> kể từ ngày xác nhận nhận đủ bộ tài liệu hợp đồng để cân nhắc tiếp tục hoặc từ chối tham gia."
+          }
+        ],
+        card2Details: [
+          {
+            heading: "Đặc tính bảo hiểm tử kỳ thuần túy (Điều 13.3.3)",
+            text: "Sản phẩm tập trung tối đa vào quyền lợi bảo vệ trước rủi ro tử vong. <strong>Không có giá trị hoàn lại</strong> hoặc giá trị tiền mặt khi Bên Mua Bảo Hiểm chấm dứt hợp đồng trước thời hạn."
+          },
+          {
+            heading: "Ngày hiệu lực Hợp Đồng Bảo Hiểm (Điều 18)",
+            text: "Là ngày Bên Mua Bảo Hiểm hoàn tất Hồ Sơ Yêu Cầu Bảo Hiểm và đóng đủ kỳ phí bảo hiểm đầu tiên, với điều kiện được Prudential chấp thuận (và cả BMBH & NĐBH còn sống)."
+          },
+          {
+            heading: "Hoàn phí trong Thời Hạn Cân Nhắc (Điều 13.1)",
+            text: "Nếu từ chối trong 21 ngày cân nhắc, Prudential hoàn lại tổng phí bảo hiểm đã đóng của Sản Phẩm Bảo Hiểm Chính, <strong>không có lãi</strong>, sau khi trừ chi phí khám, xét nghiệm y khoa (nếu có)."
+          }
+        ],
+        quiz: {
+          question: "Theo Quy tắc & Điều khoản PRUYên Tâm Vui Khỏe, độ tuổi tối đa của Người Được Bảo Hiểm khi kết thúc Thời Hạn Bảo Hiểm là bao nhiêu?",
+          options: [
+            "70 tuổi",
+            "75 tuổi",
+            "80 tuổi",
+            "85 tuổi"
+          ],
+          correctIndex: 2,
+          explanation: "Chính xác! Theo Định nghĩa 12 và Điều 17, độ tuổi tham gia là 30 ngày – 70 tuổi và độ tuổi tối đa khi kết thúc Thời Hạn Bảo Hiểm là 80 tuổi."
+        }
+      },
+      {
+        id: 1,
+        shortTitle: "2. Quyền Lợi",
+        title: "Quyền Lợi Bảo Hiểm Tử Vong",
+        subtitle: "Tỷ lệ chi trả theo độ tuổi tại thời điểm tử vong",
+        citation: "Chương I — Điều 1. Quyền Lợi Bảo Hiểm",
+        icon: "fa-hand-holding-heart",
+        rotation: { x: -12, y: -90 },
+        normal: { x: 1, y: 0, z: 0 },
+        cubeSummary: "Chi trả từ hoàn phí (< 1 tuổi) đến 100% Số Tiền Bảo Hiểm (từ 4 tuổi trở lên).",
+        cubeTags: ["Từ 4 tuổi: 100% STBH", "< 1 tuổi: Hoàn phí"],
+        floatingTags: [
+          { icon: "fa-shield-halved", text: "Bảo vệ 100% STBH" },
+          { icon: "fa-scale-balanced", text: "Khấu trừ Khoản Nợ" }
+        ],
+        card1Points: [
+          {
+            label: "Phạm vi bảo vệ cốt lõi (Điều 1)",
+            text: "Trong thời hạn hợp đồng có hiệu lực, nếu Người Được Bảo Hiểm tử vong (ngoại trừ các trường hợp loại trừ tại Điều 2.1), Prudential chi trả quyền lợi bảo hiểm tử vong theo bậc thang độ tuổi."
+          },
+          {
+            label: "Nguyên tắc khấu trừ Khoản Nợ",
+            text: "Số tiền chi trả sẽ được khấu trừ <strong>(các) Khoản Nợ</strong>, nếu có (bao gồm Phí Bảo Hiểm Đến Hạn chưa đóng và các khoản nợ khác)."
+          },
+          {
+            label: "Chấm dứt hiệu lực sau chi trả",
+            text: "Ngay sau khi Prudential chấp thuận chi trả quyền lợi bảo hiểm tử vong, Hợp Đồng Bảo Hiểm sẽ <strong>chấm dứt hiệu lực</strong>."
+          }
+        ],
+        card2Table: [
+          { age: "Dưới 1 tuổi", benefit: "Hoàn lại toàn bộ Phí Bảo Hiểm đã đóng cho SP chính (không lãi)" },
+          { age: "Từ 1 tuổi đến dưới 2 tuổi", benefit: "25% Số Tiền Bảo Hiểm" },
+          { age: "Từ 2 tuổi đến dưới 3 tuổi", benefit: "50% Số Tiền Bảo Hiểm" },
+          { age: "Từ 3 tuổi đến dưới 4 tuổi", benefit: "75% Số Tiền Bảo Hiểm" },
+          { age: "Từ 4 tuổi trở lên", benefit: "100% Số Tiền Bảo Hiểm" }
+        ],
+        card2Note: "Lưu ý: Tuổi tại thời điểm tử vong được xác định theo Tuổi Bảo Hiểm (tính theo ngày sinh nhật gần nhất trước Ngày Hiệu Lực hoặc Ngày Kỷ Niệm Năm Hợp Đồng).",
+        quiz: {
+          question: "Một trẻ 2,5 tuổi (từ 2 tuổi đến dưới 3 tuổi) là Người Được Bảo Hiểm không may tử vong thuộc phạm vi bảo hiểm. Prudential sẽ chi trả tỷ lệ nào?",
+          options: [
+            "Hoàn lại toàn bộ phí bảo hiểm đã đóng",
+            "25% Số Tiền Bảo Hiểm",
+            "50% Số Tiền Bảo Hiểm",
+            "100% Số Tiền Bảo Hiểm"
+          ],
+          correctIndex: 2,
+          explanation: "Chính xác! Theo bảng tỷ lệ tại Điều 1, Người Được Bảo Hiểm tử vong ở độ tuổi từ 2 tuổi đến dưới 3 tuổi sẽ được chi trả 50% Số Tiền Bảo Hiểm."
+        }
+      },
+      {
+        id: 2,
+        shortTitle: "3. BH Tạm Thời",
+        title: "Bảo Hiểm Tạm Thời",
+        subtitle: "Bảo vệ tử vong do Tai Nạn trong thời gian thẩm định",
+        citation: "Chương II — Điều 3, Điều 4 & Điều 5",
+        icon: "fa-stopwatch",
+        rotation: { x: -12, y: -180 },
+        normal: { x: 0, y: 0, z: -1 },
+        cubeSummary: "Bảo vệ tử vong do Tai Nạn tối đa 200 triệu VNĐ ngay từ lúc nộp HSYCBH & phí tạm tính.",
+        cubeTags: ["Tối đa 200 triệu", "Chỉ tử vong Tai Nạn"],
+        floatingTags: [
+          { icon: "fa-bolt", text: "Hiệu lực tức thì" },
+          { icon: "fa-car-burst", text: "Trong 180 ngày tai nạn" }
+        ],
+        card1Points: [
+          {
+            label: "Thời điểm bắt đầu (Điều 3)",
+            text: "Bắt đầu ngay từ thời điểm Prudential nhận được <strong>Hồ Sơ Yêu Cầu Bảo Hiểm hợp lệ</strong> và Bên Mua Bảo Hiểm đã hoàn tất thanh toán <strong>Phí Bảo Hiểm Tạm Tính</strong>."
+          },
+          {
+            label: "Thời điểm kết thúc (tùy ngày nào đến trước)",
+            text: "Ngày Prudential cấp Giấy Chứng Nhận Bảo Hiểm; ngày tạm hoãn chấp nhận bảo hiểm; ngày ban hành văn bản từ chối; hoặc ngày BMBH yêu cầu hủy HSYCBH."
+          },
+          {
+            label: "Phạm vi bảo vệ duy nhất",
+            text: "Chỉ áp dụng nếu Người Được Bảo Hiểm của Sản Phẩm Bảo Hiểm Chính <strong>tử vong do Tai Nạn</strong> (trong vòng 180 ngày kể từ ngày xảy ra Tai Nạn)."
+          }
+        ],
+        card2Details: [
+          {
+            heading: "Trường hợp 1: Tổng phí đã đóng ≤ 200.000.000 VNĐ (Điều 4.i)",
+            text: "Chi trả số tiền <strong>nhỏ hơn</strong> giữa <strong>200.000.000 đồng</strong> và <strong>(tổng) Số Tiền Bảo Hiểm</strong> của SP chính trên các hồ sơ đang chờ thẩm định. (Khi chi trả mức này, phí đã đóng không được hoàn lại)."
+          },
+          {
+            heading: "Trường hợp 2: Tổng phí đã đóng > 200.000.000 VNĐ (Điều 4.ii)",
+            text: "Prudential sẽ <strong>hoàn lại (tổng) phí bảo hiểm đã đóng</strong>, không có lãi, thay cho mức Bảo Hiểm Tạm Thời 200 triệu đồng."
+          },
+          {
+            heading: "Loại trừ đối với Bảo Hiểm Tạm Thời (Điều 5)",
+            text: "Tử vong không phải do Tai Nạn; tự tử/tự gây thương tích; sử dụng ma túy hoặc <strong>nồng độ cồn vượt mức cho phép</strong> khi lái xe; HIV/AIDS (trừ y tế/công an làm nhiệm vụ); hành vi phạm tội của BMBH/NTH."
+          }
+        ],
+        quiz: {
+          question: "Khách hàng đóng phí tạm tính 25 triệu đồng cho Hợp đồng có STBH chính 500 triệu đồng. Trong thời gian chờ thẩm định, khách hàng tử vong do Tai Nạn. Số tiền chi trả là bao nhiêu?",
+          options: [
+            "25.000.000 đồng (hoàn lại phí tạm tính)",
+            "200.000.000 đồng (và không hoàn phí đã đóng)",
+            "500.000.000 đồng (100% STBH)",
+            "225.000.000 đồng"
+          ],
+          correctIndex: 1,
+          explanation: "Chính xác! Vì tổng phí đã đóng (25 triệu) ≤ 200 triệu, Prudential chi trả số nhỏ hơn giữa 200 triệu và STBH (500 triệu), tức là 200.000.000 đồng."
+        }
+      },
+      {
+        id: 3,
+        shortTitle: "4. Loại Trừ",
+        title: "Điều Khoản Loại Trừ",
+        subtitle: "6 trường hợp loại trừ & Bảo vệ Người Thụ Hưởng vô tội",
+        citation: "Chương I — Điều 2. Điều khoản loại trừ",
+        icon: "fa-ban",
+        rotation: { x: -12, y: 90 },
+        normal: { x: -1, y: 0, z: 0 },
+        cubeSummary: "6 trường hợp không chi trả STBH tử vong, ngoại lệ Điều 2.2 & nguyên tắc hoàn phí.",
+        cubeTags: ["Tự tử trong 02 năm", "Ngoại lệ Điều 2.2"],
+        floatingTags: [
+          { icon: "fa-clock", text: "Mốc 02 năm tự tử" },
+          { icon: "fa-user-shield", text: "Bảo vệ NTH vô tội" }
+        ],
+        card1Points: [
+          {
+            label: "1. Tự tử hoặc tự gây thương tích trong 02 năm (Điều 2.1.i)",
+            text: "Dù trong trạng thái tinh thần bình thường hay mất trí, trong thời hạn <strong>02 năm</strong> kể từ ngày nộp phí đầu tiên, ngày khôi phục hiệu lực gần nhất, hoặc ngày hiệu lực tăng STBH (với phần tăng thêm)."
+          },
+          {
+            label: "2 & 3. Hành vi phạm tội / Lỗi cố ý của BMBH hoặc NTH",
+            text: "Do hành vi phạm tội (theo kết luận cơ quan có thẩm quyền) hoặc lỗi cố ý của Bên Mua Bảo Hiểm hoặc Người Thụ Hưởng gây ra cho Người Được Bảo Hiểm."
+          },
+          {
+            label: "4, 5 & 6. Các loại trừ nghiêm trọng khác",
+            text: "Bị thi hành án tử hình; nhiễm HIV/AIDS (trừ nhân viên y tế, công an, cảnh sát nhiễm khi làm nhiệm vụ); sử dụng chất gây nghiện, ma túy, chất kích thích trái phép."
+          }
+        ],
+        card2Details: [
+          {
+            heading: "Ngoại lệ nhân văn bảo vệ Người Thụ Hưởng vô tội (Điều 2.2)",
+            text: "Trường hợp có <strong>nhiều hơn một Người Thụ Hưởng</strong> và một/một số người cố ý gây tử vong cho NĐBH, Prudential <strong>vẫn trả toàn bộ quyền lợi</strong> tương ứng theo tỷ lệ chỉ định cho <strong>những Người Thụ Hưởng còn lại</strong>."
+          },
+          {
+            heading: "Hoàn phí khi rơi vào điều khoản loại trừ (Điều 2.3)",
+            text: "Trừ trường hợp Điều 2.2, khi NĐBH tử vong thuộc các lý do loại trừ tại Điều 2.1, Prudential sẽ chi trả cho Bên Mua Bảo Hiểm <strong>tổng phí bảo hiểm đã đóng</strong> (không có lãi), sau khi trừ Khoản Nợ và chi phí khám, xét nghiệm y khoa (nếu có)."
+          }
+        ],
+        quiz: {
+          question: "Đối với phần tăng thêm của Số Tiền Bảo Hiểm, loại trừ do nguyên nhân tự tử được áp dụng trong thời hạn bao lâu?",
+          options: [
+            "12 tháng kể từ ngày yêu cầu tăng STBH",
+            "02 năm tính từ ngày có hiệu lực của việc tăng STBH hoặc ngày khôi phục gần nhất",
+            "Không áp dụng loại trừ tự tử đối với phần STBH tăng thêm",
+            "05 năm kể từ ngày phát hành Hợp đồng"
+          ],
+          correctIndex: 1,
+          explanation: "Chính xác! Theo Điều 2.1.(i), đối với phần tăng thêm của STBH, loại trừ tự tử áp dụng trong vòng 02 năm tính từ ngày có hiệu lực của việc tăng STBH hoặc từ ngày khôi phục hiệu lực gần nhất, tùy ngày nào đến sau."
+        }
+      },
+      {
+        id: 4,
+        shortTitle: "5. Duy Trì HĐ",
+        title: "Phí & Duy Trì Hợp Đồng",
+        subtitle: "Gia hạn đóng phí 60 ngày, khôi phục & miễn truy xét",
+        citation: "Chương IV (Điều 11, 12), Điều 13.3 & Điều 21",
+        icon: "fa-arrows-rotate",
+        rotation: { x: -90, y: 0 },
+        normal: { x: 0, y: 1, z: 0 },
+        cubeSummary: "Gia hạn phí 60 ngày, khôi phục hiệu lực trong 24 tháng & miễn truy xét sau 24 tháng.",
+        cubeTags: ["Gia hạn 60 ngày", "Miễn truy xét 24 tháng"],
+        floatingTags: [
+          { icon: "fa-hourglass-half", text: "60 ngày gia hạn" },
+          { icon: "fa-file-circle-check", text: "Miễn truy xét 24T" }
+        ],
+        card1Points: [
+          {
+            label: "Thời hạn đóng phí (Điều 11)",
+            text: "Đối với Sản Phẩm Bảo Hiểm Chính: <strong>Thời Hạn Đóng Phí bằng Thời Hạn Bảo Hiểm</strong>. Có thể yêu cầu thay đổi định kỳ đóng phí bằng văn bản."
+          },
+          {
+            label: "Thời gian gia hạn đóng phí 60 ngày (Điều 12)",
+            text: "Kéo dài <strong>60 ngày</strong> kể từ ngày đến hạn đóng phí. Trong suốt 60 ngày này, <strong>Hợp Đồng Bảo Hiểm vẫn có hiệu lực</strong> bảo vệ đầy đủ."
+          },
+          {
+            label: "Khôi phục hiệu lực Hợp Đồng (Điều 13.3.6)",
+            text: "Được quyền yêu cầu trong vòng <strong>24 tháng</strong> kể từ ngày mất hiệu lực gần nhất (không trễ hơn Ngày Đáo Hạn), khi đóng đủ tiền khôi phục và đáp ứng điều kiện thẩm định."
+          }
+        ],
+        card2Details: [
+          {
+            heading: "Quyền thay đổi Số Tiền Bảo Hiểm (Điều 13.3.1)",
+            text: "Tối đa <strong>1 lần/Năm Hợp Đồng</strong> (trong Thời hạn cân nhắc, hoặc từ Ngày Kỷ Niệm Năm HĐ thứ 2; tăng STBH áp dụng đến Ngày Kỷ Niệm ngay sau sinh nhật 71 tuổi). Gửi yêu cầu trong vòng <strong>30 ngày trước Ngày Kỷ Niệm Năm HĐ</strong>."
+          },
+          {
+            heading: "Điều khoản miễn truy xét sau 24 tháng (Điều 21)",
+            text: "Khi NĐBH còn sống, các nội dung kê khai không chính xác hoặc bỏ sót vô ý sẽ được miễn truy xét sau <strong>24 tháng</strong> kể từ Ngày Hiệu Lực, ngày khôi phục hoặc ngày tăng STBH gần nhất (không áp dụng nếu <em>cố ý kê khai không trung thực</em>)."
+          }
+        ],
+        quiz: {
+          question: "Nếu Sự Kiện Bảo Hiểm xảy ra trong thời gian gia hạn đóng phí 60 ngày và được Prudential chấp thuận, quyền lợi bảo hiểm sẽ được giải quyết như thế nào?",
+          options: [
+            "Từ chối chi trả vì khách hàng chưa đóng phí đến hạn",
+            "Chi trả 50% Số Tiền Bảo Hiểm",
+            "Chi trả quyền lợi bảo hiểm sau khi đã khấu trừ Phí Bảo Hiểm Đến Hạn và (các) Khoản Nợ, nếu có",
+            "Chỉ hoàn lại tổng phí bảo hiểm đã đóng trước đó"
+          ],
+          correctIndex: 2,
+          explanation: "Chính xác! Theo Điều 12.3, trong 60 ngày gia hạn đóng phí, hợp đồng vẫn có hiệu lực và quyền lợi bảo hiểm sẽ được chi trả sau khi khấu trừ Phí Bảo Hiểm Đến Hạn và Khoản Nợ (nếu có)."
+        }
+      },
+      {
+        id: 5,
+        shortTitle: "6. Bồi Thường",
+        title: "Giải Quyết Quyền Lợi (Claim)",
+        subtitle: "Thời hạn xử lý 30 ngày, lãi chậm trả & thứ tự nhận tiền",
+        citation: "Chương III — Điều 6, Điều 7 & Điều 8",
+        icon: "fa-file-signature",
+        rotation: { x: 90, y: 0 },
+        normal: { x: 0, y: -1, z: 0 },
+        cubeSummary: "Nộp hồ sơ trong 01 năm, giải quyết trong 30 ngày & ưu tiên chi trả Người Thụ Hưởng.",
+        cubeTags: ["Nộp hồ sơ: 01 năm", "Xử lý: 30 ngày"],
+        floatingTags: [
+          { icon: "fa-clock-rotate-left", text: "30 ngày giải quyết" },
+          { icon: "fa-percent", text: "Lãi Vietcombank" }
+        ],
+        card1Points: [
+          {
+            label: "Thời hạn yêu cầu giải quyết quyền lợi (Điều 6)",
+            text: "Là <strong>01 năm</strong> kể từ ngày xảy ra Sự Kiện Bảo Hiểm, hoặc ngày Người Nhận Quyền Lợi chứng minh được rằng mới biết việc xảy ra Sự Kiện Bảo Hiểm."
+          },
+          {
+            label: "Thời hạn Prudential giải quyết hồ sơ (Điều 6)",
+            text: "Trong vòng <strong>30 ngày</strong> kể từ khi nhận được bộ hồ sơ yêu cầu giải quyết quyền lợi bảo hiểm đầy đủ và hợp lệ."
+          },
+          {
+            label: "Hồ sơ yêu cầu giải quyết cơ bản (Điều 7)",
+            text: "Phiếu yêu cầu theo mẫu; bằng chứng quyền nhận quyền lợi; giấy chứng tử/báo tử; tóm tắt bệnh án/hồ sơ y tế; và biên bản/kết luận điều tra công an (nếu do Tai Nạn)."
+          }
+        ],
+        card2Details: [
+          {
+            heading: "Quy định trả thêm lãi nếu giải quyết chậm quá 30 ngày (Điều 6)",
+            text: "Trừ trường hợp bất khả kháng, nếu quá thời hạn 30 ngày đối với hồ sơ được chấp thuận, Prudential sẽ trả thêm lãi theo mức <strong>lãi suất áp dụng cho tiền gửi tiết kiệm có kỳ hạn của Ngân hàng Vietcombank</strong> tại thời điểm chi trả."
+          },
+          {
+            heading: "Thứ tự ưu tiên Người Nhận Quyền Lợi — BMBH cá nhân (Điều 8.1)",
+            text: "<strong>(1) Người Thụ Hưởng</strong> (nếu có nhiều NTH mà 1 người không còn sống, phần này trả cho BMBH) → <strong>(2) Bên Mua Bảo Hiểm</strong> → <strong>(3) Người thừa kế hợp pháp</strong> của Bên Mua Bảo Hiểm."
+          }
+        ],
+        quiz: {
+          question: "Nếu giải quyết hồ sơ hợp lệ chậm quá 30 ngày (không thuộc trường hợp bất khả kháng), Prudential phải trả thêm khoản lãi theo mức lãi suất nào?",
+          options: [
+            "Lãi suất cơ bản của Ngân hàng Nhà nước",
+            "Lãi suất tiền gửi không kỳ hạn của Vietcombank",
+            "Lãi suất tiền gửi tiết kiệm có kỳ hạn do Ngân hàng Vietcombank quy định tại thời điểm chi trả",
+            "Cố định 10%/năm"
+          ],
+          correctIndex: 2,
+          explanation: "Chính xác! Theo Điều 6, Prudential sẽ trả thêm lãi của số tiền chi trả theo mức lãi suất áp dụng cho tiền gửi tiết kiệm có kỳ hạn do Ngân hàng Ngoại thương Việt Nam (Vietcombank) quy định tại thời điểm chi trả."
+        }
+      }
+    ];
+
+    // ================= APPLICATION STATE =================
+    const STORAGE_KEY = 'pru_yentamvuikhoe_3d_stack_v2';
+    let masteredFaces = new Set();
+    let activeFaceIndex = 0;
+    let activeCardIndex = 0; // 0: Cốt lõi, 1: Chi tiết, 2: Quiz
+
+    // 3D Cube Rotation State
+    const cubeEl = document.getElementById('cube');
+    const sceneEl = document.getElementById('scene');
+    let isDragging = false;
+    let dragMoved = false;
+    let startX = 0;
+    let startY = 0;
+    let rotX = -12;
+    let rotY = 0;
+
+    // Load & Save Progress
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) masteredFaces = new Set(parsed);
+        }
+      } catch (e) {
+        console.warn('Không thể tải tiến độ:', e);
+      }
+    }
+
+    function saveProgress() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...masteredFaces]));
+      } catch (e) {
+        console.warn('Không thể lưu tiến độ:', e);
+      }
+    }
+
+    // ================= RENDER 3D CUBE & NAVIGATION =================
+    function renderCubeAndNav() {
+      cubeEl.innerHTML = '';
+      const navContainer = document.getElementById('nav-pills');
+      navContainer.innerHTML = '';
+
+      CUBE_MODULES.forEach((mod, idx) => {
+        const isMastered = masteredFaces.has(mod.id);
+        const isActive = activeFaceIndex === idx;
+
+        // 1. Cube Face
+        const faceDiv = document.createElement('div');
+        faceDiv.className = `cube-face face-${idx} ${isMastered ? 'mastered' : ''} ${isActive ? 'active-face' : ''}`;
+        faceDiv.id = `cube-face-${idx}`;
+
+        faceDiv.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                isMastered
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-[#eaf6ee] text-[#153226]'
+              }">
+                <i class="fa-solid ${mod.icon} ${isMastered ? 'text-emerald-600' : 'text-[#ed1b2e]'}"></i>
+                Mặt ${idx + 1}/6
+              </span>
+              ${
+                isMastered
+                  ? `<span class="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] shadow-xs" title="Đã chinh phục"><i class="fa-solid fa-check"></i></span>`
+                  : `<span class="w-2.5 h-2.5 rounded-full ${isActive ? 'bg-[#ed1b2e]' : 'bg-slate-300'}"></span>`
+              }
+            </div>
+
+            <h3 class="text-base sm:text-[17px] font-extrabold text-[#153226] leading-snug mb-1.5">
+              ${mod.title}
+            </h3>
+
+            <p class="text-[11.5px] sm:text-xs text-slate-600 leading-relaxed line-clamp-3">
+              ${mod.cubeSummary}
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex flex-wrap gap-1">
+              ${mod.cubeTags
+                .map(
+                  (t) =>
+                    `<span class="text-[10px] font-semibold px-2 py-0.5 rounded-lg bg-white border border-[#dceee2] text-[#153226]">${t}</span>`
+                )
+                .join('')}
+            </div>
+
+            <button type="button" onclick="handleFaceClick(event, ${idx})"
+              class="w-full py-2 px-3 rounded-full text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                isActive
+                  ? 'bg-[#153226] text-white shadow-sm'
+                  : 'bg-[#eaf6ee] hover:bg-[#dceee2] text-[#153226]'
+              }">
+              <span>${isActive ? 'Đang hiển thị thẻ' : 'Xoay tới mặt này'}</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+          </div>
+        `;
+        cubeEl.appendChild(faceDiv);
+
+        // 2. Navigation Pill
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.id = `nav-pill-${idx}`;
+        pill.onclick = () => selectFace(idx, true);
+        pill.className = `px-3 py-2 rounded-2xl border text-left transition flex items-center justify-between gap-1.5 cursor-pointer ${
+          isActive
+            ? 'bg-[#153226] border-[#153226] text-white shadow-md shadow-emerald-950/15'
+            : 'bg-white hover:bg-[#f2faf5] border-[#dceee2] text-[#153226]'
+        }`;
+
+        pill.innerHTML = `
+          <div class="flex items-center gap-1.5 min-w-0">
+            <i class="fa-solid ${mod.icon} text-[11px] ${
+              isActive ? 'text-emerald-300' : isMastered ? 'text-emerald-600' : 'text-[#ed1b2e]'
+            } shrink-0"></i>
+            <span class="text-[11.5px] font-bold truncate">${mod.shortTitle}</span>
+          </div>
+          ${
+            isMastered
+              ? `<i class="fa-solid fa-circle-check ${isActive ? 'text-emerald-300' : 'text-emerald-500'} text-xs shrink-0"></i>`
+              : `<span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-slate-300'} shrink-0"></span>`
+          }
+        `;
+        navContainer.appendChild(pill);
+      });
+
+      document.getElementById('active-face-indicator').innerText = `Mặt ${activeFaceIndex + 1}/6`;
+      updateProgressUI();
+    }
+
+    function updateProgressUI() {
+      const count = masteredFaces.size;
+      const pct = Math.round((count / CUBE_MODULES.length) * 100);
+      document.getElementById('progress-text').innerText = `${count}/6 mặt`;
+      document.getElementById('progress-bar').style.width = `${pct}%`;
+
+      const banner = document.getElementById('celebration-banner');
+      if (count === CUBE_MODULES.length) {
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    // ================= RENDER LAYERED 3D CARD STACK (RIGHT PANEL) =================
+    function renderCardStack() {
+      const stage = document.getElementById('card-stack-stage');
+      const mod = CUBE_MODULES[activeFaceIndex];
+      const isMastered = masteredFaces.has(mod.id);
+
+      // Compute relative positions (0 = Front, 1 = Middle, 2 = Back)
+      const getPos = (cardIdx) => (cardIdx - activeCardIndex + 3) % 3;
+
+      // CARD 0: CỐT LÕI SẢN PHẨM (Pastel Mint)
+      const card0HTML = `
+        <article class="stacked-card" data-card="0" data-pos="${getPos(0)}" onclick="handleStackCardClick(0)">
+          <div class="card-pastel-mint rounded-[22px] p-4 sm:p-5 flex-1 flex flex-col justify-between relative overflow-hidden">
+            <!-- Top Row: Active Badge & Share/Next Icon -->
+            <div class="flex items-center justify-between gap-2 z-10">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 text-[#153226] text-[11px] font-bold shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Thẻ 1/3 • Cốt lõi
+              </span>
+              <button type="button" onclick="event.stopPropagation(); bringCardToFront(1)" title="Xem thẻ chi tiết điều khoản"
+                class="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-[#153226] flex items-center justify-center text-xs shadow-xs transition cursor-pointer">
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <!-- Floating Tags (Recenter style) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 my-3 z-10">
+              <span class="floating-tag">
+                <i class="fa-solid ${mod.floatingTags[0].icon} text-emerald-600"></i>
+                ${mod.floatingTags[0].text}
+              </span>
+              <span class="floating-tag">
+                <i class="fa-solid ${mod.floatingTags[1].icon} text-[#ed1b2e]"></i>
+                ${mod.floatingTags[1].text}
+              </span>
+            </div>
+
+            <!-- Key Bullet Points Container -->
+            <div class="bg-white/85 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 space-y-2.5 border border-white shadow-xs overflow-y-auto card-scroll max-h-[245px] z-10">
+              ${mod.card1Points
+                .map(
+                  (pt) => `
+                  <div class="text-xs sm:text-[13px] leading-relaxed text-slate-700">
+                    <div class="font-bold text-[#153226] flex items-center gap-1.5 mb-0.5">
+                      <i class="fa-solid fa-circle-check text-emerald-600 text-[11px]"></i>
+                      <span>${pt.label}</span>
+                    </div>
+                    <p class="pl-4 text-slate-600">${pt.text}</p>
+                  </div>
+                `
+                )
+                .join('')}
+            </div>
+
+            <!-- Subtle Citation Footer inside Pastel -->
+            <div class="mt-2.5 flex items-center justify-between text-[11px] font-semibold text-[#153226]/80 px-1">
+              <span><i class="fa-solid fa-scale-balanced mr-1"></i> ${mod.citation}</span>
+            </div>
+          </div>
+
+          <!-- White Card Footer (Recenter Bottom Bar) -->
+          <div class="pt-3.5 px-2 pb-1 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h2 class="text-lg sm:text-xl font-extrabold text-[#153226] tracking-tight truncate">
+                ${mod.title}
+              </h2>
+              <p class="text-xs text-slate-500 truncate">${mod.subtitle}</p>
+            </div>
+            <button type="button" onclick="event.stopPropagation(); bringCardToFront(1)" class="btn-forest shrink-0">
+              <span>Xem điều khoản</span>
+              <i class="fa-solid fa-arrow-right text-[11px]"></i>
+            </button>
+          </div>
+        </article>
+      `;
+
+      // CARD 1: CHI TIẾT ĐIỀU KHOẢN & BẢNG BIỂU (Pastel Warm Amber)
+      let card1BodyHTML = '';
+      if (mod.card2Table) {
+        card1BodyHTML = `
+          <div class="bg-white/90 backdrop-blur-md rounded-2xl p-3 border border-white shadow-xs overflow-y-auto card-scroll max-h-[275px]">
+            <div class="text-xs font-extrabold text-[#153226] mb-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-table-list text-amber-600"></i>
+              <span>Bảng tỷ lệ chi trả theo tuổi tại thời điểm tử vong</span>
+            </div>
+            <div class="overflow-hidden rounded-xl border border-amber-200/80">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-amber-100/80 text-[#153226]">
+                    <th class="py-2 px-2.5 font-bold">Tuổi tử vong</th>
+                    <th class="py-2 px-2.5 font-bold">Quyền lợi chi trả</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-amber-100 bg-white">
+                  ${mod.card2Table
+                    .map(
+                      (r) => `
+                    <tr>
+                      <td class="py-2 px-2.5 font-semibold text-slate-700">${r.age}</td>
+                      <td class="py-2 px-2.5 font-bold text-[#153226]">${r.benefit}</td>
+                    </tr>
+                  `
+                    )
+                    .join('')}
+                </tbody>
+              </table>
+            </div>
+            <p class="mt-2.5 text-[11px] text-slate-600 italic leading-relaxed">${mod.card2Note}</p>
+          </div>
+        `;
+      } else {
+        card1BodyHTML = `
+          <div class="bg-white/90 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 space-y-3 border border-white shadow-xs overflow-y-auto card-scroll max-h-[275px]">
+            ${mod.card2Details
+              .map(
+                (item) => `
+              <div class="border-b border-amber-100 last:border-none pb-2.5 last:pb-0">
+                <h4 class="text-xs sm:text-[13px] font-extrabold text-[#153226] mb-1 flex items-start gap-1.5">
+                  <span class="w-1.5 h-3.5 rounded-full bg-amber-500 mt-0.5 shrink-0"></span>
+                  <span>${item.heading}</span>
+                </h4>
+                <p class="text-xs text-slate-600 leading-relaxed pl-3">${item.text}</p>
+              </div>
+            `
+              )
+              .join('')}
+          </div>
+        `;
+      }
+
+      const card1HTML = `
+        <article class="stacked-card" data-card="1" data-pos="${getPos(1)}" onclick="handleStackCardClick(1)">
+          <div class="card-pastel-amber rounded-[22px] p-4 sm:p-5 flex-1 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 text-[#153226] text-[11px] font-bold shadow-xs">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                Thẻ 2/3 • Chi tiết điều khoản
+              </span>
+              <button type="button" onclick="event.stopPropagation(); bringCardToFront(2)" title="Chuyển sang Mini-Quiz"
+                class="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-[#153226] flex items-center justify-center text-xs shadow-xs transition cursor-pointer">
+                <i class="fa-solid fa-bolt text-amber-600"></i>
+              </button>
+            </div>
+
+            <div class="my-3">
+              ${card1BodyHTML}
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-semibold text-amber-900/80 px-1">
+              <span><i class="fa-solid fa-book-bookmark mr-1"></i> Quy tắc & Điều khoản Prudential</span>
+            </div>
+          </div>
+
+          <div class="pt-3.5 px-2 pb-1 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h2 class="text-lg sm:text-xl font-extrabold text-[#153226] tracking-tight truncate">
+                Quy Định Chuyên Sâu
+              </h2>
+              <p class="text-xs text-slate-500 truncate">${mod.title}</p>
+            </div>
+            <button type="button" onclick="event.stopPropagation(); bringCardToFront(2)" class="btn-forest shrink-0">
+              <i class="fa-solid fa-circle-question text-amber-300"></i>
+              <span>Làm Mini-Quiz</span>
+            </button>
+          </div>
+        </article>
+      `;
+
+      // CARD 2: MINI-QUIZ KIỂM TRA NHANH (Pastel Lavender)
+      const letters = ['A', 'B', 'C', 'D'];
+      const card2HTML = `
+        <article class="stacked-card" data-card="2" data-pos="${getPos(2)}" onclick="handleStackCardClick(2)">
+          <div class="card-pastel-lavender rounded-[22px] p-4 sm:p-5 flex-1 flex flex-col justify-between relative overflow-hidden">
+            <div class="flex items-center justify-between gap-2">
+              <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/95 text-[#153226] text-[11px] font-bold shadow-xs">
+                <span class="w-2 h-2 rounded-full ${isMastered ? 'bg-emerald-500' : 'bg-indigo-500'}"></span>
+                Thẻ 3/3 • ${isMastered ? 'Đã chinh phục' : 'Thử thách Quiz'}
+              </span>
+              <button type="button" onclick="event.stopPropagation(); bringCardToFront(0)" title="Quay lại thẻ tóm tắt"
+                class="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-[#153226] flex items-center justify-center text-xs shadow-xs transition cursor-pointer">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+
+            <div class="my-2.5 bg-white/90 backdrop-blur-md rounded-2xl p-3.5 sm:p-4 border border-white shadow-xs overflow-y-auto card-scroll max-h-[295px]">
+              <p class="text-xs sm:text-[13.5px] font-bold text-[#153226] leading-snug mb-3">
+                ${mod.quiz.question}
+              </p>
+
+              <div class="space-y-2" id="quiz-options-list">
+                ${mod.quiz.options
+                  .map(
+                    (opt, optIdx) => `
+                  <button type="button" id="quiz-btn-${optIdx}"
+                    onclick="event.stopPropagation(); handleQuizSelect(${activeFaceIndex}, ${optIdx})"
+                    class="w-full p-2.5 rounded-xl bg-[#f7f9fc] hover:bg-indigo-50/80 border border-slate-200 text-left transition flex items-center gap-2.5 cursor-pointer">
+                    <span class="w-6 h-6 rounded-lg bg-white border border-slate-300 text-[11px] font-extrabold text-[#153226] flex items-center justify-center shrink-0">
+                      ${letters[optIdx]}
+                    </span>
+                    <span class="text-xs font-medium text-slate-700 leading-snug">${opt}</span>
+                  </button>
+                `
+                  )
+                  .join('')}
+              </div>
+
+              <div id="quiz-feedback-box" class="hidden mt-3 p-3 rounded-xl text-xs leading-relaxed border"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-[11px] font-semibold text-indigo-950/75 px-1">
+              <span>Hoàn thành đúng để mở khóa huy hiệu mặt ${activeFaceIndex + 1}/6</span>
+            </div>
+          </div>
+
+          <div class="pt-3.5 px-2 pb-1 flex flex-wrap items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <h2 class="text-lg sm:text-xl font-extrabold text-[#153226] tracking-tight truncate">
+                Kiểm Tra Nhanh
+              </h2>
+              <p class="text-xs text-slate-500 truncate">${isMastered ? 'Bạn đã hoàn thành mặt này!' : 'Chọn đáp án đúng bên trên'}</p>
+            </div>
+            <button type="button" onclick="event.stopPropagation(); nextCubeFace()" class="btn-forest shrink-0">
+              <span>Mặt tiếp theo</span>
+              <i class="fa-solid fa-forward-step text-[11px]"></i>
+            </button>
+          </div>
+        </article>
+      `;
+
+      stage.innerHTML = card0HTML + card1HTML + card2HTML;
+      updateStackDots();
+    }
+
+    function updateStackDots() {
+      const dots = document.querySelectorAll('.stack-dot');
+      dots.forEach((dot, idx) => {
+        if (idx === activeCardIndex) {
+          dot.className = 'stack-dot px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-[#153226] text-white shadow-xs';
+        } else {
+          dot.className = 'stack-dot px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer bg-white text-slate-600 border border-[#dceee2] hover:border-[#153226]';
+        }
+      });
+    }
+
+    function bringCardToFront(cardIndex) {
+      activeCardIndex = cardIndex;
+      const cards = document.querySelectorAll('.stacked-card');
+      cards.forEach((el) => {
+        const cIdx = Number(el.getAttribute('data-card'));
+        const pos = (cIdx - activeCardIndex + 3) % 3;
+        el.setAttribute('data-pos', String(pos));
+      });
+      updateStackDots();
+    }
+
+    function handleStackCardClick(cardIndex) {
+      if (cardIndex !== activeCardIndex) {
+        bringCardToFront(cardIndex);
+      }
+    }
+
+    function cycleNextCard() {
+      bringCardToFront((activeCardIndex + 1) % 3);
+    }
+
+    // ================= QUIZ INTERACTION =================
+    function handleQuizSelect(faceIdx, selectedIdx) {
+      const mod = CUBE_MODULES[faceIdx];
+      const isCorrect = selectedIdx === mod.quiz.correctIndex;
+      const feedbackBox = document.getElementById('quiz-feedback-box');
+
+      mod.quiz.options.forEach((_, idx) => {
+        const btn = document.getElementById(`quiz-btn-${idx}`);
+        if (!btn) return;
+        btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-red-400', 'bg-red-50');
+        if (idx === mod.quiz.correctIndex) {
+          btn.classList.add('border-emerald-500', 'bg-emerald-50');
+        } else if (idx === selectedIdx && !isCorrect) {
+          btn.classList.add('border-red-400', 'bg-red-50');
+        }
+      });
+
+      feedbackBox.classList.remove(
+        'hidden',
+        'bg-emerald-50',
+        'border-emerald-300',
+        'text-emerald-900',
+        'bg-red-50',
+        'border-red-300',
+        'text-red-900'
+      );
+
+      if (isCorrect) {
+        feedbackBox.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-900');
+        feedbackBox.innerHTML = `
+          <div class="font-extrabold text-emerald-700 mb-0.5">
+            <i class="fa-solid fa-circle-check mr-1"></i> Tuyệt vời! Đáp án chính xác.
+          </div>
+          <p>${mod.quiz.explanation}</p>
+        `;
+
+        if (!masteredFaces.has(mod.id)) {
+          masteredFaces.add(mod.id);
+          saveProgress();
+          renderCubeAndNav();
+        }
+      } else {
+        feedbackBox.classList.add('bg-red-50', 'border-red-300', 'text-red-900');
+        feedbackBox.innerHTML = `
+          <div class="font-extrabold text-red-700 mb-0.5">
+            <i class="fa-solid fa-circle-xmark mr-1"></i> Chưa đúng rồi — Hãy thử chọn lại nhé!
+          </div>
+          <p>Bạn có thể lật lại <strong>Thẻ 1</strong> hoặc <strong>Thẻ 2</strong> để xem lại quy định chi tiết.</p>
+        `;
+      }
+    }
+
+    // ================= 3D CUBE ROTATION & FACE DETECTION =================
+    function selectFace(index, shouldRotateCube = true) {
+      const changed = activeFaceIndex !== index;
+      activeFaceIndex = index;
+
+      if (shouldRotateCube) {
+        const target = CUBE_MODULES[index].rotation;
+        rotX = target.x;
+        rotY = target.y;
+        cubeEl.classList.add('smooth-rotate');
+        cubeEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      }
+
+      if (changed) {
+        activeCardIndex = 0; // Reset stack to Card 1 when switching to a new face
+        renderCardStack();
+      }
+      renderCubeAndNav();
+    }
+
+    function nextCubeFace() {
+      const nextIdx = (activeFaceIndex + 1) % CUBE_MODULES.length;
+      selectFace(nextIdx, true);
+    }
+
+    function handleFaceClick(e, index) {
+      e.stopPropagation();
+      if (dragMoved) return;
+      selectFace(index, true);
+    }
+
+    /**
+     * Tính toán mặt khối lập phương đang hướng thẳng về phía người xem nhất
+     * dựa trên góc xoay Euler (rotX, rotY) hiện tại
+     */
+    function detectFrontMostFace() {
+      const radX = (rotX * Math.PI) / 180;
+      const radY = (rotY * Math.PI) / 180;
+
+      const sinX = Math.sin(radX);
+      const cosX = Math.cos(radX);
+      const sinY = Math.sin(radY);
+      const cosY = Math.cos(radY);
+
+      let bestFaceIdx = activeFaceIndex;
+      let maxZ = -Infinity;
+
+      CUBE_MODULES.forEach((mod, idx) => {
+        const { x, y, z } = mod.normal;
+        // Apply rotateY(rotY) first, then rotateX(rotX) (CSS transform order: rotateX rotateY)
+        // 1. Rotate around Y:
+        const x1 = x * cosY + z * sinY;
+        const y1 = y;
+        const z1 = -x * sinY + z * cosY;
+
+        // 2. Rotate around X:
+        const z2 = y1 * sinX + z1 * cosX;
+
+        if (z2 > maxZ) {
+          maxZ = z2;
+          bestFaceIdx = idx;
+        }
+      });
+
+      if (bestFaceIdx !== activeFaceIndex) {
+        selectFace(bestFaceIdx, false);
+      }
+    }
+
+    // Pointer Drag Handlers (Mouse & Touch)
+    function onPointerDown(clientX, clientY, target) {
+      if (target.closest('button')) return;
+      isDragging = true;
+      dragMoved = false;
+      startX = clientX;
+      startY = clientY;
+      cubeEl.classList.remove('smooth-rotate');
+    }
+
+    function onPointerMove(clientX, clientY) {
+      if (!isDragging) return;
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        dragMoved = true;
+      }
+      rotY += dx * 0.5;
+      rotX -= dy * 0.5;
+      rotX = Math.max(-88, Math.min(88, rotX));
+      cubeEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      startX = clientX;
+      startY = clientY;
+
+      detectFrontMostFace();
+    }
+
+    function onPointerUp() {
+      isDragging = false;
+      setTimeout(() => {
+        dragMoved = false;
+      }, 50);
+    }
+
+    sceneEl.addEventListener('mousedown', (e) => onPointerDown(e.clientX, e.clientY, e.target));
+    window.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
+    window.addEventListener('mouseup', onPointerUp);
+
+    sceneEl.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches.length === 1) {
+          onPointerDown(e.touches[0].clientX, e.touches[0].clientY, e.target);
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener(
+      'touchmove',
+      (e) => {
+        if (isDragging && e.touches.length === 1) {
+          onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        }
+      },
+      { passive: true }
+    );
+
+    window.addEventListener('touchend', onPointerUp);
+
+    // ================= RESET MODAL CONTROLS =================
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    });
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetProgress() {
+      masteredFaces.clear();
+      saveProgress();
+      closeResetModal();
+      activeCardIndex = 0;
+      selectFace(0, true);
+      renderCardStack();
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeResetModal();
+    });
+
+    // ================= INITIALIZE =================
+    window.onload = function () {
+      loadProgress();
+      renderCubeAndNav();
+      renderCardStack();
+      selectFace(0, true);
+    };
+  </script>
+</body>
+</html>
