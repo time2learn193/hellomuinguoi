@@ -47,6 +47,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
     padding: 16px 32px;
     max-width: 1360px;
     width: 100%;
@@ -58,6 +60,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
   }
 
   .brand-badge {
@@ -142,12 +145,35 @@
     user-select: none;
   }
 
+  .cube-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 16px 0 28px;
+  }
+
+  /* Soft contact shadow beneath the glossy 3D cube */
+  .cube-shadow {
+    width: 210px;
+    height: 40px;
+    margin-top: 34px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(61, 9, 16, 0.34) 0%, rgba(237, 27, 46, 0.12) 48%, rgba(237, 27, 46, 0) 75%);
+    filter: blur(6px);
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+  }
+
   .scene {
-    width: 250px;
-    height: 250px;
-    perspective: 1000px;
+    width: 240px;
+    height: 240px;
+    perspective: 1100px;
     cursor: grab;
-    margin: 24px 0 32px;
+    touch-action: none;
+    position: relative;
+    z-index: 5;
   }
 
   .scene:active {
@@ -166,36 +192,75 @@
     transition: none;
   }
 
+  /* Seamless Watertight 3D Cube Faces + Inner Glossy Bevel Sheen */
   .face {
     position: absolute;
-    width: 250px;
-    height: 250px;
-    border-radius: 28px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(254, 244, 245, 0.94));
-    border: 2px solid rgba(255, 255, 255, 0.95);
+    top: 0;
+    left: 0;
+    width: 240px;
+    height: 240px;
+    border-radius: 2px;
+    background:
+      radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.36) 0%, rgba(255, 255, 255, 0.06) 42%, transparent 68%),
+      linear-gradient(145deg, #ff3b4e 0%, #ed1b2e 50%, #b30b1b 100%);
+    outline: 1px solid rgba(185, 12, 28, 0.85);
     box-shadow:
-      inset 0 0 24px rgba(255, 255, 255, 0.9),
-      0 12px 28px rgba(61, 9, 16, 0.11);
+      inset 0 0 0 2px rgba(255, 165, 172, 0.45),
+      inset 0 4px 10px rgba(255, 255, 255, 0.42),
+      inset 0 -8px 16px rgba(105, 0, 12, 0.55);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 22px;
     text-align: center;
-    backface-visibility: visible;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    cursor: pointer;
+    transition: filter 0.25s ease, background 0.3s ease;
   }
 
-  .face.active-face {
-    border-color: var(--pru-red);
+  /* Inner rounded ceramic bevel highlight so outer edges stay 100% flush with zero corner gaps */
+  .face::after {
+    content: "";
+    position: absolute;
+    inset: 7px;
+    border-radius: 22px;
+    border: 1.5px solid rgba(255, 255, 255, 0.32);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 45%);
     box-shadow:
-      inset 0 0 20px rgba(255, 255, 255, 0.95),
-      0 18px 38px rgba(237, 27, 46, 0.24);
+      inset 0 2px 4px rgba(255, 255, 255, 0.45),
+      inset 0 -3px 6px rgba(110, 0, 12, 0.32);
+    pointer-events: none;
+  }
+
+  /* Decorative child elements do not steal pointer events from .face */
+  .face * {
+    pointer-events: none;
+    position: relative;
+    z-index: 2;
+  }
+
+  .face:hover {
+    filter: brightness(1.05);
+  }
+
+  .face.active-face::after {
+    border-color: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      inset 0 2px 6px rgba(255, 255, 255, 0.72),
+      0 0 14px rgba(255, 255, 255, 0.25);
   }
 
   .face.mastered-face {
-    border-color: var(--emerald);
-    background: linear-gradient(145deg, #ffffff, #ecfdf5);
+    background:
+      radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.06) 42%, transparent 68%),
+      linear-gradient(145deg, #22c55e 0%, #059669 52%, #065f46 100%);
+    outline-color: rgba(6, 95, 70, 0.85);
+    box-shadow:
+      inset 0 0 0 2px rgba(167, 243, 208, 0.45),
+      inset 0 4px 10px rgba(255, 255, 255, 0.4),
+      inset 0 -8px 16px rgba(4, 60, 42, 0.55);
   }
 
   .face-num {
@@ -203,33 +268,32 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: var(--pru-red-dark);
-    background: var(--pru-red-tint);
-    padding: 4px 10px;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 4px 11px;
     border-radius: 999px;
     margin-bottom: 12px;
-  }
-
-  .face.mastered-face .face-num {
-    background: var(--emerald-soft);
-    color: #065f46;
+    text-shadow: 0 1px 2px rgba(90, 0, 10, 0.35);
   }
 
   .face-icon {
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     border-radius: 16px;
-    background: var(--pru-red-soft);
+    background: rgba(255, 255, 255, 0.95);
     color: var(--pru-red);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
+    box-shadow: 0 6px 14px rgba(105, 0, 12, 0.28);
   }
 
   .face.mastered-face .face-icon {
-    background: var(--emerald-soft);
+    background: #ffffff;
     color: var(--emerald);
+    box-shadow: 0 6px 14px rgba(4, 60, 42, 0.28);
   }
 
   .face-icon svg {
@@ -239,55 +303,66 @@
 
   .face-title {
     font-size: 16px;
-    font-weight: 700;
-    color: var(--pru-red-deep);
+    font-weight: 800;
+    color: #ffffff;
     line-height: 1.3;
     margin-bottom: 6px;
+    text-shadow: 0 1px 3px rgba(95, 0, 10, 0.42);
   }
 
   .face-sub {
     font-size: 12px;
-    color: var(--text-muted);
+    color: rgba(255, 242, 243, 0.94);
     line-height: 1.4;
+    text-shadow: 0 1px 2px rgba(95, 0, 10, 0.35);
   }
 
-  /* 3D Cube Face Positions (250 / 2 = 125px) */
-  .front  { transform: rotateY(  0deg) translateZ(125px); }
-  .right  { transform: rotateY( 90deg) translateZ(125px); }
-  .back   { transform: rotateY(180deg) translateZ(125px); }
-  .left   { transform: rotateY(-90deg) translateZ(125px); }
-  .top    { transform: rotateX( 90deg) translateZ(125px); }
-  .bottom { transform: rotateX(-90deg) translateZ(125px); }
+  /* Exact Half-Width 3D Cube Face Positions (240px / 2 = 120px) */
+  .front  { transform: rotateY(  0deg) translateZ(120px); }
+  .right  { transform: rotateY( 90deg) translateZ(120px); }
+  .back   { transform: rotateY(180deg) translateZ(120px); }
+  .left   { transform: rotateY(-90deg) translateZ(120px); }
+  .top    { transform: rotateX( 90deg) translateZ(120px); }
+  .bottom { transform: rotateX(-90deg) translateZ(120px); }
 
-  /* Quick Face Selector Pills */
+  /* Properly Formatted 6-Face Navigation Buttons Below Cube */
   .face-nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    max-width: 390px;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 4px;
   }
 
   .nav-chip {
-    border: 1px solid var(--border-soft);
-    background: rgba(255, 255, 255, 0.85);
-    color: var(--text-muted);
-    font-size: 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid rgba(237, 27, 46, 0.2);
+    background: #ffffff;
+    color: var(--pru-red-deep);
+    font-family: inherit;
+    font-size: 12.5px;
     font-weight: 600;
-    padding: 7px 13px;
+    padding: 9px 10px;
     border-radius: 999px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(61, 9, 16, 0.06);
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .nav-chip:hover {
-    background: #ffffff;
-    color: var(--pru-red);
     border-color: var(--pru-red);
-    transform: translateY(-1px);
+    color: var(--pru-red);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(237, 27, 46, 0.14);
   }
 
   .nav-chip.active {
@@ -298,10 +373,11 @@
   }
 
   .nav-chip .check-dot {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--emerald);
+    flex-shrink: 0;
     display: none;
   }
 
@@ -353,7 +429,6 @@
     will-change: transform;
   }
 
-  /* Layered positions inspired by reference image */
   .story-card[data-pos="0"] {
     z-index: 30;
     transform: translateX(0px) scale(1);
@@ -383,7 +458,7 @@
     transform: translateX(62px) scale(0.915);
   }
 
-  /* Pastel Inner Canvas inside each Card (Prudential Red / Warm Rose / Soft Slate-Pearl) */
+  /* Pastel Inner Canvas inside each Card */
   .card-canvas {
     flex: 1;
     border-radius: 22px;
@@ -669,26 +744,46 @@
   }
 
   @media (max-width: 960px) {
+    header {
+      padding: 12px 16px;
+    }
     main {
       grid-template-columns: 1fr;
       padding: 12px 16px 32px;
       gap: 24px;
     }
+    .cube-stage {
+      margin: 8px 0 20px;
+    }
     .scene {
-      width: 210px;
-      height: 210px;
-      margin: 12px 0 24px;
+      width: 200px;
+      height: 200px;
     }
     .face {
-      width: 210px;
-      height: 210px;
+      width: 200px;
+      height: 200px;
+      border-radius: 2px;
+      padding: 16px;
     }
-    .front  { transform: rotateY(  0deg) translateZ(105px); }
-    .right  { transform: rotateY( 90deg) translateZ(105px); }
-    .back   { transform: rotateY(180deg) translateZ(105px); }
-    .left   { transform: rotateY(-90deg) translateZ(105px); }
-    .top    { transform: rotateX( 90deg) translateZ(105px); }
-    .bottom { transform: rotateX(-90deg) translateZ(105px); }
+    .face::after {
+      inset: 6px;
+      border-radius: 18px;
+    }
+    .cube-shadow {
+      width: 176px;
+      height: 34px;
+      margin-top: 26px;
+    }
+    .front  { transform: rotateY(  0deg) translateZ(100px); }
+    .right  { transform: rotateY( 90deg) translateZ(100px); }
+    .back   { transform: rotateY(180deg) translateZ(100px); }
+    .left   { transform: rotateY(-90deg) translateZ(100px); }
+    .top    { transform: rotateX( 90deg) translateZ(100px); }
+    .bottom { transform: rotateX(-90deg) translateZ(100px); }
+    .face-nav {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 340px;
+    }
 
     .stack-wrapper {
       height: 540px;
@@ -720,10 +815,13 @@
   <main>
     <!-- LEFT: 3D INTERACTIVE CUBE -->
     <section class="cube-arena">
-      <div class="scene" id="scene">
-        <div class="cube" id="cube">
-          <!-- 6 Faces injected by JS -->
+      <div class="cube-stage">
+        <div class="scene" id="scene">
+          <div class="cube" id="cube">
+            <!-- 6 Faces injected by JS -->
+          </div>
         </div>
+        <div class="cube-shadow" id="cube-shadow"></div>
       </div>
 
       <div class="face-nav" id="face-nav"></div>
@@ -746,7 +844,7 @@
             <h2 id="title-0">Tổng Quan Sản Phẩm</h2>
             <p id="sub-0">Thẻ 1/3 • Điểm cốt lõi cần nắm</p>
           </div>
-          <button class="cta-pill" onclick="cycleCard(1)">
+          <button type="button" class="cta-pill" data-next-card="1">
             <span>Chi tiết điều khoản</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
           </button>
@@ -761,7 +859,7 @@
             <h2 id="title-1">Quy Tắc & Điều Khoản</h2>
             <p id="sub-1">Thẻ 2/3 • Chi tiết pháp lý & tỷ lệ</p>
           </div>
-          <button class="cta-pill" onclick="cycleCard(2)">
+          <button type="button" class="cta-pill" data-next-card="2">
             <span>Thử thách Quiz</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </button>
@@ -776,7 +874,7 @@
             <h2 id="title-2">Kiểm Tra Nhanh</h2>
             <p id="sub-2">Thẻ 3/3 • Hoàn thành để mở khóa mặt</p>
           </div>
-          <button class="cta-pill" onclick="cycleCard(0)">
+          <button type="button" class="cta-pill" data-next-card="0">
             <span>Về thẻ tổng quan</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
           </button>
@@ -790,11 +888,11 @@
     {
       id: 0,
       faceClass: "front",
-      rot: { x: -8, y: 0 },
+      rot: { x: 0, y: 0 },
       shortName: "1. Tổng quan",
       title: "Tổng Quan & Đối Tượng",
       cubeSub: "30 ngày – 70 tuổi • Thời hạn 5–40 năm",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
       stickers: ["Tuổi tham gia: 30 ngày – 70 tuổi", "Tuổi kết thúc tối đa: 80 tuổi", "Cân nhắc 21 ngày"],
       card0Html: `
         <div class="info-box">
@@ -838,11 +936,11 @@
     {
       id: 1,
       faceClass: "right",
-      rot: { x: -8, y: -90 },
+      rot: { x: 0, y: -90 },
       shortName: "2. Quyền lợi",
       title: "Quyền Lợi Tử Vong",
       cubeSub: "Chi trả lên đến 100% Số Tiền Bảo Hiểm",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`,
       stickers: ["Điều 1: Quyền lợi chính", "Điều chỉnh theo tuổi tử vong", "Trừ Khoản Nợ (nếu có)"],
       card0Html: `
         <div class="info-box">
@@ -893,11 +991,11 @@
     {
       id: 2,
       faceClass: "back",
-      rot: { x: -8, y: -180 },
+      rot: { x: 0, y: -180 },
       shortName: "3. BH Tạm thời",
       title: "Bảo Hiểm Tạm Thời",
       cubeSub: "Tối đa 200 triệu khi tử vong do Tai Nạn",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
       stickers: ["Chương II (Điều 3–5)", "Chỉ bảo vệ tử vong do Tai Nạn", "Trần chi trả 200 triệu"],
       card0Html: `
         <div class="info-box">
@@ -941,11 +1039,11 @@
     {
       id: 3,
       faceClass: "left",
-      rot: { x: -8, y: 90 },
+      rot: { x: 0, y: 90 },
       shortName: "4. Loại trừ",
       title: "Điều Khoản Loại Trừ",
       cubeSub: "6 trường hợp loại trừ & quy tắc hoàn phí",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
       stickers: ["Điều 2: Loại trừ tử vong", "Mốc tự tử: 02 năm", "Bảo vệ NTH vô tội"],
       card0Html: `
         <div class="info-box">
@@ -989,7 +1087,7 @@
       shortName: "5. Phí & Duy trì",
       title: "Phí & Duy Trì Hợp Đồng",
       cubeSub: "Gia hạn 60 ngày • Khôi phục 24 tháng",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>`,
       stickers: ["Gia hạn phí: 60 ngày", "Khôi phục: 24 tháng", "Miễn truy xét: 24 tháng"],
       card0Html: `
         <div class="info-box">
@@ -1033,7 +1131,7 @@
       shortName: "6. Bồi thường",
       title: "Giải Quyết Quyền Lợi",
       cubeSub: "Nộp hồ sơ 1 năm • Xử lý trong 30 ngày",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`,
       stickers: ["Thời hạn nộp: 01 năm", "Cam kết xử lý: 30 ngày", "Chậm trả tính lãi VCB"],
       card0Html: `
         <div class="info-box">
@@ -1074,22 +1172,27 @@
 
   let activeFaceIdx = 0;
   const masteredSet = new Set();
-  const quizAnswers = {}; // faceIdx -> selectedOptionIdx
+  const quizAnswers = {};
 
-  let rotX = -8;
-  let rotY = 0;
+  // Isometric default angle showing 3 glossy red faces simultaneously like the reference image
+  let rotX = -24;
+  let rotY = -36;
   let isDragging = false;
-  let startX = 0;
-  let startY = 0;
+  let activePointerId = null;
+  let downX = 0;
+  let downY = 0;
+  let lastX = 0;
+  let lastY = 0;
   let dragMoved = false;
 
   const cubeEl = document.getElementById("cube");
   const sceneEl = document.getElementById("scene");
   const navEl = document.getElementById("face-nav");
+  const shadowEl = document.getElementById("cube-shadow");
 
   function initCube() {
     cubeEl.innerHTML = FACES_DATA.map((f, idx) => `
-      <div class="face ${f.faceClass} ${idx === 0 ? 'active-face' : ''}" data-face="${idx}" onclick="handleFaceClick(${idx})">
+      <div class="face ${f.faceClass} ${idx === 0 ? 'active-face' : ''}" data-face="${idx}">
         <span class="face-num" id="badge-face-${idx}">Mặt ${idx + 1} / 6</span>
         <div class="face-icon">${f.icon}</div>
         <div class="face-title">${f.title}</div>
@@ -1098,11 +1201,28 @@
     `).join("");
 
     navEl.innerHTML = FACES_DATA.map((f, idx) => `
-      <button class="nav-chip ${idx === 0 ? 'active' : ''}" id="chip-${idx}" onclick="selectFace(${idx})">
+      <button type="button" class="nav-chip ${idx === 0 ? 'active' : ''}" id="chip-${idx}" data-face-btn="${idx}">
         <span class="check-dot"></span>
         ${f.shortName}
       </button>
     `).join("");
+
+    // Attach navigation chip listeners cleanly
+    navEl.querySelectorAll(".nav-chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.getAttribute("data-face-btn"));
+        selectFace(idx);
+      });
+    });
+
+    // Attach CTA pill buttons on cards
+    document.querySelectorAll("[data-next-card]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const target = Number(btn.getAttribute("data-next-card"));
+        bringCardToFront(target);
+      });
+    });
 
     updateCubeTransform();
     renderCards(0);
@@ -1110,6 +1230,10 @@
 
   function updateCubeTransform() {
     cubeEl.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+    if (shadowEl) {
+      const tiltScale = 1 + Math.abs(Math.sin((rotY * Math.PI) / 180)) * 0.08;
+      shadowEl.style.transform = `scaleX(${tiltScale.toFixed(3)})`;
+    }
   }
 
   function selectFace(idx, skipRotation = false) {
@@ -1135,11 +1259,6 @@
     bringCardToFront(0);
   }
 
-  function handleFaceClick(idx) {
-    if (dragMoved) return;
-    selectFace(idx);
-  }
-
   function bringCardToFront(targetCardId) {
     const order = [
       targetCardId,
@@ -1151,10 +1270,6 @@
       const newPos = order.indexOf(cId);
       cardEl.setAttribute("data-pos", String(newPos));
     });
-  }
-
-  function cycleCard(targetCardId) {
-    bringCardToFront(targetCardId);
   }
 
   document.querySelectorAll(".story-card").forEach((cardEl) => {
@@ -1180,13 +1295,14 @@
     `).join("");
 
     // Card 0
-    document.getElementById("canvas-0").innerHTML = `
+    const canvas0 = document.getElementById("canvas-0");
+    canvas0.innerHTML = `
       <div class="card-top-bar">
         <span class="status-pill"><span class="pulse" style="${isMastered ? 'background:#059669' : ''}"></span> Mặt ${idx + 1}/6 • ${isMastered ? 'Đã hoàn thành' : 'Đang khám phá'}</span>
         <div class="card-step-dots">
-          <span class="step-dot active" onclick="bringCardToFront(0)"></span>
-          <span class="step-dot" onclick="bringCardToFront(1)"></span>
-          <span class="step-dot" onclick="bringCardToFront(2)"></span>
+          <span class="step-dot active" data-dot-card="0"></span>
+          <span class="step-dot" data-dot-card="1"></span>
+          <span class="step-dot" data-dot-card="2"></span>
         </div>
       </div>
       <div class="sticker-row">${stickersHtml}</div>
@@ -1196,13 +1312,14 @@
     document.getElementById("sub-0").innerText = `Thẻ 1/3 • Tóm tắt quy tắc sản phẩm`;
 
     // Card 1
-    document.getElementById("canvas-1").innerHTML = `
+    const canvas1 = document.getElementById("canvas-1");
+    canvas1.innerHTML = `
       <div class="card-top-bar">
         <span class="status-pill"><span class="pulse" style="background:#d97706"></span> Chi tiết điều khoản</span>
         <div class="card-step-dots">
-          <span class="step-dot" onclick="bringCardToFront(0)"></span>
-          <span class="step-dot active" onclick="bringCardToFront(1)"></span>
-          <span class="step-dot" onclick="bringCardToFront(2)"></span>
+          <span class="step-dot" data-dot-card="0"></span>
+          <span class="step-dot active" data-dot-card="1"></span>
+          <span class="step-dot" data-dot-card="2"></span>
         </div>
       </div>
       <div class="canvas-body">${f.card1Html}</div>
@@ -1218,7 +1335,7 @@
         if (oIdx === f.quiz.correct) cls += " correct";
         else if (oIdx === prevChoice) cls += " wrong";
       }
-      return `<button class="${cls}" onclick="answerQuiz(${idx}, ${oIdx})">${String.fromCharCode(65 + oIdx)}. ${opt}</button>`;
+      return `<button type="button" class="${cls}" data-quiz-opt="${oIdx}">${String.fromCharCode(65 + oIdx)}. ${opt}</button>`;
     }).join("");
 
     let fbClass = "quiz-feedback";
@@ -1230,13 +1347,14 @@
         : "Chưa chính xác — hãy xem lại gợi ý ở Thẻ 1 & Thẻ 2 hoặc thử chọn lại đáp án khác nhé!";
     }
 
-    document.getElementById("canvas-2").innerHTML = `
+    const canvas2 = document.getElementById("canvas-2");
+    canvas2.innerHTML = `
       <div class="card-top-bar">
         <span class="status-pill"><span class="pulse" style="background:#3d0910"></span> Mini-Quiz Thực Chiến</span>
         <div class="card-step-dots">
-          <span class="step-dot" onclick="bringCardToFront(0)"></span>
-          <span class="step-dot" onclick="bringCardToFront(1)"></span>
-          <span class="step-dot active" onclick="bringCardToFront(2)"></span>
+          <span class="step-dot" data-dot-card="0"></span>
+          <span class="step-dot" data-dot-card="1"></span>
+          <span class="step-dot active" data-dot-card="2"></span>
         </div>
       </div>
       <div class="canvas-body">
@@ -1249,6 +1367,21 @@
     `;
     document.getElementById("title-2").innerText = isMastered ? "Đã Chinh Phục Mặt Này!" : "Kiểm Tra Kiến Thức";
     document.getElementById("sub-2").innerText = `Thẻ 3/3 • Trả lời đúng để gắn huy hiệu`;
+
+    // Bind step-dot clicks and quiz options cleanly via addEventListener
+    document.querySelectorAll("[data-dot-card]").forEach((dot) => {
+      dot.addEventListener("click", (e) => {
+        e.stopPropagation();
+        bringCardToFront(Number(dot.getAttribute("data-dot-card")));
+      });
+    });
+
+    canvas2.querySelectorAll("[data-quiz-opt]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        answerQuiz(idx, Number(btn.getAttribute("data-quiz-opt")));
+      });
+    });
   }
 
   function answerQuiz(faceIdx, optIdx) {
@@ -1294,7 +1427,6 @@
     let maxZ = -Infinity;
 
     normals.forEach(n => {
-      const x1 = n.x * Math.cos(radY) + n.z * Math.sin(radY);
       const z1 = -n.x * Math.sin(radY) + n.z * Math.cos(radY);
       const z2 = -n.y * Math.sin(radX) + z1 * Math.cos(radX);
 
@@ -1309,59 +1441,74 @@
     }
   }
 
-  function onDragStart(clientX, clientY) {
+  // Unified Pointer Events for rock-solid Mouse & Touch Dragging + Direct Face Clicking
+  sceneEl.addEventListener("pointerdown", (e) => {
     isDragging = true;
+    activePointerId = e.pointerId;
+    downX = e.clientX;
+    downY = e.clientY;
+    lastX = e.clientX;
+    lastY = e.clientY;
     dragMoved = false;
-    startX = clientX;
-    startY = clientY;
     cubeEl.classList.add("dragging");
-  }
+    try {
+      sceneEl.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
 
-  function onDragMove(clientX, clientY) {
-    if (!isDragging) return;
-    const dx = clientX - startX;
-    const dy = clientY - startY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+  sceneEl.addEventListener("pointermove", (e) => {
+    if (!isDragging || e.pointerId !== activePointerId) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    const totalDist = Math.hypot(e.clientX - downX, e.clientY - downY);
 
-    rotY += dx * 0.55;
-    rotX -= dy * 0.55;
+    if (totalDist > 5) {
+      dragMoved = true;
+    }
+
+    rotY += dx * 0.6;
+    rotX -= dy * 0.6;
     rotX = Math.max(-85, Math.min(85, rotX));
 
     updateCubeTransform();
-    startX = clientX;
-    startY = clientY;
-  }
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
 
-  function onDragEnd() {
-    if (!isDragging) return;
+  function finishPointerInteraction(e) {
+    if (!isDragging || (e.pointerId !== undefined && e.pointerId !== activePointerId)) return;
     isDragging = false;
     cubeEl.classList.remove("dragging");
+
+    try {
+      if (activePointerId !== null) {
+        sceneEl.releasePointerCapture(activePointerId);
+      }
+    } catch (_) {}
+    activePointerId = null;
+
     if (dragMoved) {
       detectClosestFace();
+    } else {
+      // User tapped/clicked without dragging: identify clicked face via elementFromPoint
+      const hitEl = document.elementFromPoint(e.clientX, e.clientY);
+      const faceEl = hitEl ? hitEl.closest(".face") : null;
+      if (faceEl && faceEl.hasAttribute("data-face")) {
+        const clickedIdx = Number(faceEl.getAttribute("data-face"));
+        selectFace(clickedIdx);
+      }
     }
-    setTimeout(() => { dragMoved = false; }, 50);
   }
 
-  sceneEl.addEventListener("mousedown", (e) => onDragStart(e.clientX, e.clientY));
-  window.addEventListener("mousemove", (e) => onDragMove(e.clientX, e.clientY));
-  window.addEventListener("mouseup", onDragEnd);
+  sceneEl.addEventListener("pointerup", finishPointerInteraction);
+  sceneEl.addEventListener("pointercancel", finishPointerInteraction);
 
-  sceneEl.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 1) {
-      onDragStart(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  window.addEventListener("touchmove", (e) => {
-    if (isDragging && e.touches.length === 1) {
-      onDragMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  }, { passive: true });
-
-  window.addEventListener("touchend", onDragEnd);
-
-  initCube();
+  // Initialize immediately whether DOMContentLoaded already fired or not
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initCube);
+  } else {
+    initCube();
+  }
 </script>
 </body>
 </html>
-Đã xử lý và phân tích bằng mã
