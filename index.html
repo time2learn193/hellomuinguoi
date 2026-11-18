@@ -6,17 +6,20 @@
 <title>Khối Kiến Thức 3D — PRUYên Tâm Vui Khỏe (Offline)</title>
 <style>
   :root {
-    --bg-mint: #eaf6ee;
-    --grid-line: rgba(21, 50, 38, 0.055);
-    --forest: #153226;
-    --forest-hover: #1e4635;
-    --emerald: #10b981;
+    --bg-blush: #fdf6f6;
+    --grid-line: rgba(237, 27, 46, 0.055);
+    --pru-red: #ed1b2e;
+    --pru-red-dark: #c41223;
+    --pru-red-deep: #3d0910;
+    --pru-red-soft: #fde8ea;
+    --pru-red-tint: rgba(237, 27, 46, 0.08);
+    --emerald: #059669;
     --emerald-soft: #d1fae5;
-    --text-main: #11261d;
-    --text-muted: #526b60;
+    --text-main: #1f1214;
+    --text-muted: #685457;
     --card-white: #ffffff;
-    --border-soft: rgba(21, 50, 38, 0.09);
-    --shadow-card: 0 24px 48px -12px rgba(21, 50, 38, 0.14), 0 4px 16px -4px rgba(21, 50, 38, 0.06);
+    --border-soft: rgba(237, 27, 46, 0.12);
+    --shadow-card: 0 24px 48px -12px rgba(61, 9, 16, 0.14), 0 4px 16px -4px rgba(237, 27, 46, 0.08);
   }
 
   * {
@@ -27,7 +30,7 @@
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-mint);
+    background-color: var(--bg-blush);
     background-image:
       linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
       linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
@@ -58,50 +61,51 @@
   }
 
   .brand-badge {
-    background: var(--forest);
+    background: var(--pru-red);
     color: #fff;
     font-weight: 700;
     font-size: 12px;
     letter-spacing: 0.5px;
-    padding: 6px 12px;
+    padding: 6px 13px;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
+    box-shadow: 0 4px 12px rgba(237, 27, 46, 0.25);
   }
 
   .brand-badge .dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #34d399;
+    background: #ffffff;
   }
 
   .brand-title {
     font-size: 16px;
     font-weight: 700;
-    color: var(--forest);
+    color: var(--pru-red-deep);
   }
 
   .progress-pill {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(8px);
     border: 1px solid var(--border-soft);
     padding: 8px 16px;
     border-radius: 999px;
     font-size: 13px;
     font-weight: 600;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     display: flex;
     align-items: center;
     gap: 10px;
-    box-shadow: 0 4px 12px rgba(21, 50, 38, 0.05);
+    box-shadow: 0 4px 12px rgba(61, 9, 16, 0.05);
   }
 
   .progress-bar-wrap {
     width: 72px;
     height: 6px;
-    background: #d8ebe0;
+    background: #f5d6d9;
     border-radius: 999px;
     overflow: hidden;
   }
@@ -109,7 +113,7 @@
   .progress-bar-fill {
     height: 100%;
     width: 0%;
-    background: var(--emerald);
+    background: var(--pru-red);
     border-radius: 999px;
     transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -167,11 +171,11 @@
     width: 250px;
     height: 250px;
     border-radius: 28px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(242, 250, 245, 0.92));
-    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(254, 244, 245, 0.94));
+    border: 2px solid rgba(255, 255, 255, 0.95);
     box-shadow:
-      inset 0 0 24px rgba(255, 255, 255, 0.85),
-      0 12px 28px rgba(21, 50, 38, 0.12);
+      inset 0 0 24px rgba(255, 255, 255, 0.9),
+      0 12px 28px rgba(61, 9, 16, 0.11);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -183,10 +187,10 @@
   }
 
   .face.active-face {
-    border-color: var(--forest);
+    border-color: var(--pru-red);
     box-shadow:
-      inset 0 0 20px rgba(255, 255, 255, 0.9),
-      0 16px 36px rgba(21, 50, 38, 0.22);
+      inset 0 0 20px rgba(255, 255, 255, 0.95),
+      0 18px 38px rgba(237, 27, 46, 0.24);
   }
 
   .face.mastered-face {
@@ -199,8 +203,8 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    color: var(--text-muted);
-    background: rgba(21, 50, 38, 0.06);
+    color: var(--pru-red-dark);
+    background: var(--pru-red-tint);
     padding: 4px 10px;
     border-radius: 999px;
     margin-bottom: 12px;
@@ -215,12 +219,17 @@
     width: 46px;
     height: 46px;
     border-radius: 16px;
-    background: var(--bg-mint);
-    color: var(--forest);
+    background: var(--pru-red-soft);
+    color: var(--pru-red);
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 12px;
+  }
+
+  .face.mastered-face .face-icon {
+    background: var(--emerald-soft);
+    color: var(--emerald);
   }
 
   .face-icon svg {
@@ -231,7 +240,7 @@
   .face-title {
     font-size: 16px;
     font-weight: 700;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     line-height: 1.3;
     margin-bottom: 6px;
   }
@@ -256,12 +265,12 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
-    max-width: 380px;
+    max-width: 390px;
   }
 
   .nav-chip {
     border: 1px solid var(--border-soft);
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(255, 255, 255, 0.85);
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 600;
@@ -276,15 +285,16 @@
 
   .nav-chip:hover {
     background: #ffffff;
-    color: var(--forest);
+    color: var(--pru-red);
+    border-color: var(--pru-red);
     transform: translateY(-1px);
   }
 
   .nav-chip.active {
-    background: var(--forest);
+    background: var(--pru-red);
     color: #ffffff;
-    border-color: var(--forest);
-    box-shadow: 0 6px 14px rgba(21, 50, 38, 0.18);
+    border-color: var(--pru-red);
+    box-shadow: 0 6px 16px rgba(237, 27, 46, 0.28);
   }
 
   .nav-chip .check-dot {
@@ -293,6 +303,10 @@
     border-radius: 50%;
     background: var(--emerald);
     display: none;
+  }
+
+  .nav-chip.active .check-dot {
+    background: #ffffff;
   }
 
   .nav-chip.mastered .check-dot {
@@ -369,7 +383,7 @@
     transform: translateX(62px) scale(0.915);
   }
 
-  /* Pastel Inner Canvas inside each Card */
+  /* Pastel Inner Canvas inside each Card (Prudential Red / Warm Rose / Soft Slate-Pearl) */
   .card-canvas {
     flex: 1;
     border-radius: 22px;
@@ -380,16 +394,16 @@
     position: relative;
   }
 
-  .canvas-mint {
-    background: linear-gradient(160deg, #e6f7ed 0%, #f4fbf7 60%, #e9f5ee 100%);
+  .canvas-pru-rose {
+    background: linear-gradient(160deg, #fde8ea 0%, #fff6f7 60%, #fcecef 100%);
   }
 
-  .canvas-amber {
-    background: linear-gradient(160deg, #fef5df 0%, #fffbf0 60%, #fdf2d6 100%);
+  .canvas-pru-warm {
+    background: linear-gradient(160deg, #fef0e6 0%, #fffaf6 60%, #fdf2ea 100%);
   }
 
-  .canvas-lavender {
-    background: linear-gradient(160deg, #ebeefe 0%, #f6f8ff 60%, #e4e9fd 100%);
+  .canvas-pru-pearl {
+    background: linear-gradient(160deg, #f3eff2 0%, #faf8f9 60%, #efe9ed 100%);
   }
 
   .card-top-bar {
@@ -400,23 +414,23 @@
   }
 
   .status-pill {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.94);
     padding: 5px 12px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 2px 8px rgba(21, 50, 38, 0.05);
+    box-shadow: 0 2px 8px rgba(61, 9, 16, 0.06);
   }
 
   .status-pill .pulse {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--emerald);
+    background: var(--pru-red);
   }
 
   .card-step-dots {
@@ -428,17 +442,17 @@
     width: 18px;
     height: 5px;
     border-radius: 999px;
-    background: rgba(21, 50, 38, 0.14);
+    background: rgba(237, 27, 46, 0.18);
     transition: all 0.25s ease;
     cursor: pointer;
   }
 
   .step-dot.active {
     width: 28px;
-    background: var(--forest);
+    background: var(--pru-red);
   }
 
-  /* Floating Sticker Badges (Reference Aesthetic) */
+  /* Floating Sticker Badges */
   .sticker-row {
     display: flex;
     flex-wrap: wrap;
@@ -447,23 +461,23 @@
   }
 
   .sticker {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(21, 50, 38, 0.06);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(237, 27, 46, 0.1);
     padding: 6px 11px;
     border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 10px rgba(21, 50, 38, 0.04);
+    box-shadow: 0 4px 10px rgba(61, 9, 16, 0.04);
   }
 
   .sticker svg {
     width: 14px;
     height: 14px;
-    color: var(--emerald);
+    color: var(--pru-red);
   }
 
   .canvas-body {
@@ -476,14 +490,14 @@
   }
 
   .info-box {
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.88);
     border-radius: 14px;
     padding: 11px 14px;
-    border: 1px solid rgba(21, 50, 38, 0.06);
+    border: 1px solid rgba(237, 27, 46, 0.08);
   }
 
   .info-box strong {
-    color: var(--forest);
+    color: var(--pru-red-dark);
     display: block;
     font-size: 13px;
     margin-bottom: 3px;
@@ -495,42 +509,46 @@
     line-height: 1.45;
   }
 
+  .info-box b {
+    color: var(--pru-red-deep);
+  }
+
   /* Clean Table inside Card 2 */
   .mini-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.92);
     border-radius: 14px;
     overflow: hidden;
     font-size: 12.5px;
   }
 
   .mini-table th {
-    background: rgba(21, 50, 38, 0.07);
-    color: var(--forest);
+    background: var(--pru-red);
+    color: #ffffff;
     text-align: left;
-    padding: 8px 12px;
+    padding: 9px 12px;
     font-weight: 700;
   }
 
   .mini-table td {
     padding: 8px 12px;
-    border-top: 1px solid rgba(21, 50, 38, 0.06);
+    border-top: 1px solid rgba(237, 27, 46, 0.08);
     color: var(--text-main);
   }
 
   .mini-table td:last-child {
     font-weight: 700;
-    color: var(--forest);
+    color: var(--pru-red-dark);
   }
 
   /* Quiz UI inside Card 3 */
   .quiz-q {
     font-size: 14px;
     font-weight: 700;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     line-height: 1.45;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .quiz-options {
@@ -541,8 +559,8 @@
 
   .quiz-opt {
     text-align: left;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1.5px solid rgba(21, 50, 38, 0.1);
+    background: rgba(255, 255, 255, 0.94);
+    border: 1.5px solid rgba(237, 27, 46, 0.14);
     border-radius: 14px;
     padding: 10px 14px;
     font-size: 12.5px;
@@ -553,7 +571,7 @@
   }
 
   .quiz-opt:hover {
-    border-color: var(--forest);
+    border-color: var(--pru-red);
     background: #ffffff;
   }
 
@@ -566,7 +584,7 @@
 
   .quiz-opt.wrong {
     background: #fee2e2;
-    border-color: #dc2626;
+    border-color: var(--pru-red);
     color: #7f1d1d;
   }
 
@@ -583,16 +601,16 @@
   }
 
   .quiz-feedback.ok {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba(5, 150, 105, 0.14);
     color: #065f46;
   }
 
   .quiz-feedback.err {
-    background: rgba(220, 38, 38, 0.12);
+    background: rgba(237, 27, 46, 0.12);
     color: #991b1b;
   }
 
-  /* Card Bottom Footer (Exact Match to Reference Card Footer) */
+  /* Card Bottom Footer */
   .card-footer {
     padding: 16px 8px 6px;
     display: flex;
@@ -604,7 +622,7 @@
   .footer-text h2 {
     font-size: 19px;
     font-weight: 800;
-    color: var(--forest);
+    color: var(--pru-red-deep);
     letter-spacing: -0.3px;
     margin-bottom: 2px;
   }
@@ -615,7 +633,7 @@
   }
 
   .cta-pill {
-    background: var(--forest);
+    background: var(--pru-red);
     color: #ffffff;
     border: none;
     border-radius: 999px;
@@ -627,11 +645,12 @@
     align-items: center;
     gap: 8px;
     white-space: nowrap;
+    box-shadow: 0 6px 16px rgba(237, 27, 46, 0.25);
     transition: background 0.2s ease, transform 0.15s ease;
   }
 
   .cta-pill:hover {
-    background: var(--forest-hover);
+    background: var(--pru-red-dark);
     transform: translateY(-1px);
   }
 
@@ -645,7 +664,7 @@
     width: 5px;
   }
   .card-canvas::-webkit-scrollbar-thumb {
-    background: rgba(21, 50, 38, 0.15);
+    background: rgba(237, 27, 46, 0.18);
     border-radius: 999px;
   }
 
@@ -687,7 +706,7 @@
 
   <header>
     <div class="brand">
-      <span class="brand-badge"><span class="dot"></span> PRUYên Tâm Vui Khỏe</span>
+      <span class="brand-badge"><span class="dot"></span> PRUDENTIAL • PRUYên Tâm Vui Khỏe</span>
       <span class="brand-title">Khối Kiến Thức Bảo Hiểm Tử Kỳ 3D</span>
     </div>
     <div class="progress-pill">
@@ -719,9 +738,9 @@
 
     <!-- RIGHT: LAYERED 3-CARD STACK -->
     <section class="stack-wrapper" id="stack-wrapper">
-      <!-- Card 0: Core Overview (Mint) -->
+      <!-- Card 0: Core Overview (Prudential Rose) -->
       <article class="story-card" data-card="0" data-pos="0">
-        <div class="card-canvas canvas-mint" id="canvas-0"></div>
+        <div class="card-canvas canvas-pru-rose" id="canvas-0"></div>
         <div class="card-footer">
           <div class="footer-text">
             <h2 id="title-0">Tổng Quan Sản Phẩm</h2>
@@ -734,9 +753,9 @@
         </div>
       </article>
 
-      <!-- Card 1: Deep Clauses & Tables (Amber) -->
+      <!-- Card 1: Deep Clauses & Tables (Warm Coral) -->
       <article class="story-card" data-card="1" data-pos="1">
-        <div class="card-canvas canvas-amber" id="canvas-1"></div>
+        <div class="card-canvas canvas-pru-warm" id="canvas-1"></div>
         <div class="card-footer">
           <div class="footer-text">
             <h2 id="title-1">Quy Tắc & Điều Khoản</h2>
@@ -749,9 +768,9 @@
         </div>
       </article>
 
-      <!-- Card 2: Mini-Quiz Check (Lavender) -->
+      <!-- Card 2: Mini-Quiz Check (Soft Pearl) -->
       <article class="story-card" data-card="2" data-pos="2">
-        <div class="card-canvas canvas-lavender" id="canvas-2"></div>
+        <div class="card-canvas canvas-pru-pearl" id="canvas-2"></div>
         <div class="card-footer">
           <div class="footer-text">
             <h2 id="title-2">Kiểm Tra Nhanh</h2>
@@ -1054,7 +1073,6 @@
   ];
 
   let activeFaceIdx = 0;
-  let activeCardPos = [0, 1, 2]; // maps cardId -> visual position (0 = front, 1 = mid, 2 = back)
   const masteredSet = new Set();
   const quizAnswers = {}; // faceIdx -> selectedOptionIdx
 
@@ -1122,7 +1140,6 @@
     selectFace(idx);
   }
 
-  // Bring specific card (0, 1, or 2) to front of the layered stack
   function bringCardToFront(targetCardId) {
     const order = [
       targetCardId,
@@ -1140,7 +1157,6 @@
     bringCardToFront(targetCardId);
   }
 
-  // Click on peeking background cards to bring them forward
   document.querySelectorAll(".story-card").forEach((cardEl) => {
     cardEl.addEventListener("click", (e) => {
       const pos = Number(cardEl.getAttribute("data-pos"));
@@ -1166,7 +1182,7 @@
     // Card 0
     document.getElementById("canvas-0").innerHTML = `
       <div class="card-top-bar">
-        <span class="status-pill"><span class="pulse"></span> Mặt ${idx + 1}/6 • ${isMastered ? 'Đã hoàn thành' : 'Đang khám phá'}</span>
+        <span class="status-pill"><span class="pulse" style="${isMastered ? 'background:#059669' : ''}"></span> Mặt ${idx + 1}/6 • ${isMastered ? 'Đã hoàn thành' : 'Đang khám phá'}</span>
         <div class="card-step-dots">
           <span class="step-dot active" onclick="bringCardToFront(0)"></span>
           <span class="step-dot" onclick="bringCardToFront(1)"></span>
@@ -1182,7 +1198,7 @@
     // Card 1
     document.getElementById("canvas-1").innerHTML = `
       <div class="card-top-bar">
-        <span class="status-pill"><span class="pulse" style="background:#f59e0b"></span> Chi tiết điều khoản</span>
+        <span class="status-pill"><span class="pulse" style="background:#d97706"></span> Chi tiết điều khoản</span>
         <div class="card-step-dots">
           <span class="step-dot" onclick="bringCardToFront(0)"></span>
           <span class="step-dot active" onclick="bringCardToFront(1)"></span>
@@ -1216,7 +1232,7 @@
 
     document.getElementById("canvas-2").innerHTML = `
       <div class="card-top-bar">
-        <span class="status-pill"><span class="pulse" style="background:#6366f1"></span> Mini-Quiz Thực Chiến</span>
+        <span class="status-pill"><span class="pulse" style="background:#3d0910"></span> Mini-Quiz Thực Chiến</span>
         <div class="card-step-dots">
           <span class="step-dot" onclick="bringCardToFront(0)"></span>
           <span class="step-dot" onclick="bringCardToFront(1)"></span>
@@ -1261,26 +1277,23 @@
     document.getElementById("progress-fill").style.width = `${(count / 6) * 100}%`;
   }
 
-  // Detect which cube face points closest toward viewer (+Z) after free drag
   function detectClosestFace() {
     const radX = (rotX * Math.PI) / 180;
     const radY = (rotY * Math.PI) / 180;
 
-    // Normals of the 6 faces in local cube space
     const normals = [
       { idx: 0, x: 0,  y: 0,  z: 1  }, // front
       { idx: 1, x: 1,  y: 0,  z: 0  }, // right
       { idx: 2, x: 0,  y: 0,  z: -1 }, // back
       { idx: 3, x: -1, y: 0,  z: 0  }, // left
-      { idx: 4, x: 0,  y: -1, z: 0  }, // top (rotateX(90deg) brings -Y normal to +Z)
-      { idx: 5, x: 0,  y: 1,  z: 0  }  // bottom (rotateX(-90deg) brings +Y normal to +Z)
+      { idx: 4, x: 0,  y: -1, z: 0  }, // top
+      { idx: 5, x: 0,  y: 1,  z: 0  }  // bottom
     ];
 
     let bestIdx = 0;
     let maxZ = -Infinity;
 
     normals.forEach(n => {
-      // Apply rotateY then rotateX (matching CSS transform: rotateX(rotX) rotateY(rotY))
       const x1 = n.x * Math.cos(radY) + n.z * Math.sin(radY);
       const z1 = -n.x * Math.sin(radY) + n.z * Math.cos(radY);
       const z2 = -n.y * Math.sin(radX) + z1 * Math.cos(radX);
@@ -1296,7 +1309,6 @@
     }
   }
 
-  // Mouse & Touch Drag Controls for 3D Cube
   function onDragStart(clientX, clientY) {
     isDragging = true;
     dragMoved = false;
@@ -1352,3 +1364,4 @@
 </script>
 </body>
 </html>
+Đã xử lý và phân tích bằng mã
